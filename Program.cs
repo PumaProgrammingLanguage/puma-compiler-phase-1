@@ -16,12 +16,29 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using System.Diagnostics;
+
 namespace PumaToCpp
 {
     internal class Program
     {
         private static void Main(string[] args)
         {
+            var lexer = new Lexer();
+            var parser = new Parser();
+            var codegen = new Codegen();
+
+            var source = @"
+                start
+                    print (""Hello, World!"")
+                end
+            ";
+
+            var tokens = lexer.Tokenize(source);
+            var ast = parser.Parse(tokens);
+            var ir = codegen.Generate(ast);
+
+            Debug.WriteLine(ir);
         }
     }
 }

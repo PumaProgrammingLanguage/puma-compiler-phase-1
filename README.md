@@ -1,1 +1,1 @@
-# This is an LLVM compiler for the Puma Programming Language.
+This is a Puma to CPP translator.  This translator will be used as a proof of concept project.  The goal is to write an LLVM compiler for the Puma Programming Language.

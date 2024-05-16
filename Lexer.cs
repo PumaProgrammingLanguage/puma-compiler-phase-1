@@ -58,12 +58,13 @@ namespace PumaToCpp
             Delimiter,
             Punctuation,
             Operator,
-            EndOfLine
+            EndOfLine,
+            Keyword
         }
 
         public struct LexerTokens
         {
-            public string Token;
+            public string TokenText;
             public TokenCategory Category;
         }
 
@@ -173,7 +174,7 @@ namespace PumaToCpp
                 {
                     // reached the end of the file and the last token type was not added
                     // add the last token of the line
-                    tokens.Add(new LexerTokens() { Token = currentToken, Category = currentTokenType });
+                    tokens.Add(new LexerTokens() { TokenText = currentToken, Category = currentTokenType });
                 }
             }
 
@@ -185,7 +186,7 @@ namespace PumaToCpp
             TokenCategory currentTokenType;
             // this should never happen
             currentToken += currentChar;
-            tokens.Add(new LexerTokens() { Token = currentToken, Category = TokenCategory.Unknown });
+            tokens.Add(new LexerTokens() { TokenText = currentToken, Category = TokenCategory.Unknown });
             currentToken = string.Empty;
             currentTokenType = TokenCategory.Unknown;
             return currentTokenType;
@@ -202,7 +203,7 @@ namespace PumaToCpp
             else
             {
                 // found the end of the number
-                tokens.Add(new LexerTokens() { Token = currentToken, Category = currentTokenType });
+                tokens.Add(new LexerTokens() { TokenText = currentToken, Category = currentTokenType });
                 currentToken = string.Empty;
                 currentTokenType = TokenCategory.Unknown;
                 // current charator is next token.  reset the index by one character
@@ -216,7 +217,7 @@ namespace PumaToCpp
             {
                 // found the end of the charactor
                 currentToken += currentChar;
-                tokens.Add(new LexerTokens() { Token = currentToken, Category = currentTokenType });
+                tokens.Add(new LexerTokens() { TokenText = currentToken, Category = currentTokenType });
                 currentToken = string.Empty;
                 currentTokenType = TokenCategory.Unknown;
             }
@@ -233,7 +234,7 @@ namespace PumaToCpp
             {
                 // found end of the string
                 currentToken += currentChar;
-                tokens.Add(new LexerTokens() { Token = currentToken, Category = currentTokenType });
+                tokens.Add(new LexerTokens() { TokenText = currentToken, Category = currentTokenType });
                 currentToken = string.Empty;
                 currentTokenType = TokenCategory.Unknown;
             }
@@ -252,7 +253,7 @@ namespace PumaToCpp
             {
                 // comment line ends at the end of line marker
                 // save the comment line as a token
-                tokens.Add(new LexerTokens() { Token = currentToken, Category = currentTokenType });
+                tokens.Add(new LexerTokens() { TokenText = currentToken, Category = currentTokenType });
                 // place current charactor as first char of eol token
                 currentToken = currentCharString;
                 // set token type to end of line token
@@ -273,7 +274,7 @@ namespace PumaToCpp
                 // found the second character of the end of line marker
                 // normalize the end of line marker by replacing with an line feed token
                 currentToken = "\n";
-                tokens.Add(new LexerTokens() { Token = currentToken, Category = currentTokenType });
+                tokens.Add(new LexerTokens() { TokenText = currentToken, Category = currentTokenType });
                 currentToken = string.Empty;
                 currentTokenType = TokenCategory.Unknown;
             }
@@ -282,7 +283,7 @@ namespace PumaToCpp
                 // found only a one character end of line marker
                 // normalize the end of line marker
                 currentToken = "\n";
-                tokens.Add(new LexerTokens() { Token = currentToken, Category = currentTokenType });
+                tokens.Add(new LexerTokens() { TokenText = currentToken, Category = currentTokenType });
                 // normalize the end of line marker by replacing with an line feed token
                 currentToken = string.Empty;
                 currentTokenType = TokenCategory.Unknown;
@@ -301,7 +302,7 @@ namespace PumaToCpp
             else
             {
                 // found the end of the identifier
-                tokens.Add(new LexerTokens() { Token = currentToken, Category = currentTokenType });
+                tokens.Add(new LexerTokens() { TokenText = currentToken, Category = currentTokenType });
                 currentToken = string.Empty;
                 currentTokenType = TokenCategory.Unknown;
                 // current charator is next token.  reset the index by one character
@@ -332,7 +333,7 @@ namespace PumaToCpp
                 {
                     // this is a three character operator. increment the index by two more characters
                     i += 2;
-                    tokens.Add(new LexerTokens() { Token = currentThreeChar, Category = TokenCategory.Operator });
+                    tokens.Add(new LexerTokens() { TokenText = currentThreeChar, Category = TokenCategory.Operator });
                     return;
                 }
             }
@@ -354,7 +355,7 @@ namespace PumaToCpp
                 {
                     // this is a two character operator. increment the index by one more characters
                     i += 1;
-                    tokens.Add(new LexerTokens() { Token = currentTwoChar, Category = TokenCategory.Operator });
+                    tokens.Add(new LexerTokens() { TokenText = currentTwoChar, Category = TokenCategory.Operator });
                     return;
                 }
                 else if (char.IsDigit(currentChar))
@@ -399,17 +400,17 @@ namespace PumaToCpp
             else if (_operatorsOneChar.Contains(currentChar.ToString()))
             {
                 // this is a single character operator
-                tokens.Add(new LexerTokens() { Token = currentChar.ToString(), Category = TokenCategory.Operator });
+                tokens.Add(new LexerTokens() { TokenText = currentChar.ToString(), Category = TokenCategory.Operator });
             }
             else if (_delimiters.Contains(currentChar))
             {
                 // this is a delimiter
-                tokens.Add(new LexerTokens() { Token = currentChar.ToString(), Category = TokenCategory.Delimiter });
+                tokens.Add(new LexerTokens() { TokenText = currentChar.ToString(), Category = TokenCategory.Delimiter });
             }
             else if (_punctuation.Contains(currentChar))
             {
                 // this is a punctuation
-                tokens.Add(new LexerTokens() { Token = currentChar.ToString(), Category = TokenCategory.Punctuation });
+                tokens.Add(new LexerTokens() { TokenText = currentChar.ToString(), Category = TokenCategory.Punctuation });
             }
             else if (_eolFirstChar.Contains(currentChar.ToString()))
             {
@@ -421,7 +422,7 @@ namespace PumaToCpp
             {
                 // this should never happen
                 currentToken += currentChar;
-                tokens.Add(new LexerTokens() { Token = currentToken, Category = currentTokenType });
+                tokens.Add(new LexerTokens() { TokenText = currentToken, Category = currentTokenType });
                 currentToken = string.Empty;
                 currentTokenType = TokenCategory.Unknown;
             }

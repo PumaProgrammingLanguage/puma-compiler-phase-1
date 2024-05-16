@@ -6,6 +6,8 @@
 // All Rights Reserved.
 
 
+using static PumaToCpp.Parser;
+
 namespace PumaToCpp
 {
     internal class Codegen
@@ -14,7 +16,7 @@ namespace PumaToCpp
         {
         }
 
-        internal object? Generate(object ast)
+        internal object? Generate(RootNode ast)
         {
             throw new NotImplementedException();
         }

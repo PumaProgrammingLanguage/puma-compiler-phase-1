@@ -22,44 +22,86 @@ namespace PumaToCpp
     /// <summary>
     /// 
     /// </summary>
-    internal class Parser
+    internal partial class Parser
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        public class ASTNode
+        private enum State
         {
-            public string Token;
-            public NodeCategory Category;
-            public ASTNode PreBranchNode;
-            public ASTNode PostBranchNode;
-        }
-
-        enum Position
-        {
-            PreBranchNode,
-            PostBranchNode,
-            BaseNode,
+            Invalid,
+            File,
+            Using,
+            Type,
+            Trait,
+            Namespace,
+            Enums,
+            Properties,
+            Initialize,
+            Start,
+            Finalize,
+            Functions,
+            Function,
+            StatementBlock,
+            Statement,
+            Parameter,
+            end,
         }
 
         public enum NodeCategory
         {
             Unknown,
+            Invalid,
+            Root,
             StringLiteral,
             CharLiteral,
             NumericLiteral,
             Comment,
             Identifier,
-            Whitespace,
             Delimiter,
             Punctuation,
             Operator,
-            Section,
-            Statement,
             Keyword,
+            Section,
+            Function,
+            StatementBlock,
         }
 
-        string[] keywords =
+        readonly string[] sections =
+        [
+            // using
+            "using",
+            // type
+            "type",
+            "trait",
+            "namespace",
+            // enums
+            "enums",
+            // properties
+            "properties",
+            // initialize
+            "initialize",
+            "start",
+            // finalize
+            "finalize",
+            // functions
+            "functions",
+        ];
+
+        public enum Sections
+        {
+            File,
+            Using,
+            Type,
+            Trait,
+            Namespace,
+            Enums,
+            Properties,
+            Initialize,
+            Start,
+            Finalize,
+            Functions,
+            Invalid,
+        }
+
+        readonly string[] keywords =
         [
             "using",
             "as",
@@ -132,143 +174,435 @@ namespace PumaToCpp
             "multiprocess"
         ];
 
-        string[] sections =
-        [
-            "using", // using / import
-            "type", "trait", "namespace", // file type
-            "enums", // enums
-            "properties", // properties
-            "initialize", "start", // initialize
-            "finalize", // finalize / cleanup
-            "functions", // functions
-        ];
-
-        public ASTNode Parse(List<LexerTokens> tokens)
+        enum Position
         {
-            var rootNode = new ASTNode()
-            {
-                Token = "root"
-            };
+            None = 0,
+            LeftBranchNode,
+            RightBranchNode,
+            PreviousNode,       // bidirectional pointer list
+        }
 
-            ASTNode baseNode = rootNode;
-            Position position = Position.BaseNode;
-            Position subPosition = Position.PreBranchNode;
+        private readonly RootNode rootNode_ = new()
+        {
+            TokenText = "root",
+            Category = NodeCategory.Root
+        };
+        private ASTNode? lastNode_ = null;
+        private State currentParserState_ = State.File;
+        private Sections currentSection_ = Sections.File;
+
+        public RootNode GetRoot()
+        {
+            return rootNode_;
+        }
+
+        public RootNode Parse(List<LexerTokens> tokens)
+        {
+            lastNode_ = rootNode_;
 
             foreach (LexerTokens token in tokens)
             {
-                var currentNode = new ASTNode()
+                switch (currentParserState_)
                 {
-                    Token = token.Token
-                };
+                    case State.File:
+                        ParseFile(token);
+                        break;
 
-                AssignNodeCategory(token, currentNode);
+                    case State.Using:
+                        ParseUsing(token);
+                        break;
 
-                baseNode = AddNodeToTree(currentNode, baseNode, position, subPosition);
+                    case State.Type:
+                        ParseType(token);
+                        break;
+
+                    case State.Trait:
+                        ParseTrait(token);
+                        break;
+
+                    case State.Namespace:
+                        ParseNamespace(token);
+                        break;
+
+                    case State.Enums:
+                        ParseEnums(token);
+                        break;
+
+                    case State.Properties:
+                        ParseProperties(token);
+                        break;
+
+                    case State.Initialize:
+                        ParseInitialize(token);
+                        break;
+
+                    case State.Start:
+                        ParseStart(token);
+                        break;
+
+                    case State.Finalize:
+                        ParseFinalize(token);
+                        break;
+
+                    case State.Functions:
+                        ParseFunctions(token);
+                        break;
+
+                    case State.Function:
+                        ParseFunction(token);
+                        break;
+
+                    case State.StatementBlock:
+                        ParseStatementBlock(token);
+                        break;
+
+                    case State.Statement:
+                        ParseStatement(token);
+                        break;
+
+                    case State.Parameter:
+                        ParseParameters(token);
+                        break;
+
+                    case State.end:
+                        // end of the file
+                        ParseEnd(token);
+                        break;
+
+                    case State.Invalid:
+                    default:
+                        break;
+                }
             }
 
-            return rootNode;
+            return rootNode_;
         }
 
-        private void AssignNodeCategory(LexerTokens token, ASTNode currentNode)
+        private void ParseEnd(LexerTokens token)
         {
-            // State machine to parse the token
+            {
+                // state machine to parse the initialize section header
+
+                // search for comments, whitespace, and end of line tokens
+                switch (token.Category)
+                {
+                    case Lexer.TokenCategory.Comment:
+                        // Handle comment token
+                        // Not needed in the AST
+                        break;
+
+                    case Lexer.TokenCategory.EndOfLine:
+                        // Handle end of line token
+                        // statement block follows
+                        currentParserState_ = State.StatementBlock;
+                        break;
+
+                    // Invalid token
+                    case Lexer.TokenCategory.Whitespace:
+                        // Handle whitespace token
+                        // Not needed in the AST
+                        break;
+
+                    case Lexer.TokenCategory.Delimiter:
+                    case Lexer.TokenCategory.Identifier:
+                    case Lexer.TokenCategory.Punctuation:
+                    case Lexer.TokenCategory.Operator:
+                    case Lexer.TokenCategory.StringLiteral:
+                    case Lexer.TokenCategory.CharLiteral:
+                    case Lexer.TokenCategory.NumericLiteral:
+                    default:
+                        // Handle invalid token outside of a section
+                        currentParserState_ = State.Invalid;
+                        break;
+                }
+            }
+        }
+        private void ParseParameters(LexerTokens token)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void ParseNamespace(LexerTokens token)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void ParseTrait(LexerTokens token)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void ParseStatementBlock(LexerTokens token)
+        {
+            // if found end token
+            if (token.Category == Lexer.TokenCategory.Identifier && token.TokenText == "end")
+            {
+                // Handle end token
+                currentParserState_ = State.end;
+            }
+            // if found a section token
+            else if (sections.Contains(token.TokenText))
+            {
+                // Set the next state
+                SetNextState(token.TokenText);
+            }
+            else
+            {
+                // parse the statement
+                ParseStatement(token);
+            }
+            return;
+        }
+
+        private void ParseStatement(LexerTokens token)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void SetNextState(string? tokenText)
+        {
+            switch (tokenText)
+            {
+                case "using":
+                    currentParserState_ = State.Using;
+                    currentSection_ = Sections.Using;
+                    break;
+
+                case "type":
+                    currentParserState_ = State.Type;
+                    currentSection_ = Sections.Type;
+                    break;
+
+                case "trait":
+                    currentParserState_ = State.Trait;
+                    currentSection_ = Sections.Trait;
+                    break;
+
+                case "namespace":
+                    currentParserState_ = State.Namespace;
+                    currentSection_ = Sections.Namespace;
+                    break;
+
+                case "enums":
+                    currentParserState_ = State.Enums;
+                    currentSection_ = Sections.Enums;
+                    break;
+
+                case "properties":
+                    currentParserState_ = State.Properties;
+                    currentSection_ = Sections.Properties;
+                    break;
+
+                case "initialize":
+                    currentParserState_ = State.Initialize;
+                    currentSection_ = Sections.Initialize;
+                    break;
+
+                case "start":
+                    currentParserState_ = State.Start;
+                    currentSection_ = Sections.Start;
+                    break;
+
+                case "finalize":
+                    currentParserState_ = State.Finalize;
+                    currentSection_ = Sections.Finalize;
+                    break;
+
+                case "functions":
+                    currentParserState_ = State.Functions;
+                    currentSection_ = Sections.Functions;
+                    break;
+
+                default:
+                    // invalid section
+                    currentSection_ = Sections.Invalid;
+                    break;
+            }
+        }
+
+        private void ParseFunction(LexerTokens token)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void ParseFunctions(LexerTokens token)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void ParseFinalize(LexerTokens token)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void ParseInitialize(LexerTokens token)
+        {
+            // state machine to parse the initialize section header
+
+            // search for comments, whitespace, and end of line tokens
             switch (token.Category)
             {
-                case Lexer.TokenCategory.StringLiteral:
-                    // Handle string literal token
-                    currentNode.Category = NodeCategory.StringLiteral;
-                    break;
-
-                case Lexer.TokenCategory.CharLiteral:
-                    // Handle char literal token
-                    currentNode.Category = NodeCategory.CharLiteral;
-                    break;
-
-                case Lexer.TokenCategory.NumericLiteral:
-                    // Handle numeric literal token
-                    currentNode.Category = NodeCategory.NumericLiteral;
-                    break;
-
                 case Lexer.TokenCategory.Comment:
                     // Handle comment token
-                    currentNode.Category = NodeCategory.Comment;
+                    // Not needed in the AST
                     break;
 
                 case Lexer.TokenCategory.Identifier:
                     // Handle identifier token
-                    if (keywords.Contains(token.Token))
-                    {
-                        // Handle keyword token
-                        currentNode.Category = NodeCategory.Keyword;
-                    }
-                    else
-                    {
-                        // Handle identifier token
-                        currentNode.Category = NodeCategory.Identifier;
-                    }
+                    // single statement follows
+                    currentParserState_ = State.Statement;
+                    break;
+
+                case Lexer.TokenCategory.EndOfLine:
+                    // Handle end of line token
+                    // statement block follows
+                    currentParserState_ = State.StatementBlock;
+                    break;
+
+                // Invalid token
+                case Lexer.TokenCategory.Delimiter:
+                    // Handle delimiter token
+                    // single statement follows
+                    currentParserState_ = State.Parameter;
                     break;
 
                 case Lexer.TokenCategory.Whitespace:
                     // Handle whitespace token
-                    currentNode.Category = NodeCategory.Whitespace;
-                    break;
-
-                case Lexer.TokenCategory.Delimiter:
-                    // Handle delimiter token
-                    currentNode.Category = NodeCategory.Delimiter;
+                    // Not needed in the AST
                     break;
 
                 case Lexer.TokenCategory.Punctuation:
-                    // Handle punctuation token
-                    currentNode.Category = NodeCategory.Punctuation;
-                    break;
-
                 case Lexer.TokenCategory.Operator:
-                    // Handle operator token
-                    currentNode.Category = NodeCategory.Operator;
-                    break;
-
+                case Lexer.TokenCategory.StringLiteral:
+                case Lexer.TokenCategory.CharLiteral:
+                case Lexer.TokenCategory.NumericLiteral:
                 default:
-                    // Handle unknown token
-                    currentNode.Category = NodeCategory.Unknown;
+                    // Handle invalid token outside of a section
+                    currentParserState_ = State.Invalid;
                     break;
             }
         }
 
-        private static ASTNode AddNodeToTree(ASTNode currentNode, ASTNode baseNode, Position position, Position subPosition = Position.PreBranchNode)
+        private void ParseStart(LexerTokens token)
         {
-            // Add the current node to the tree
-            switch (position)
             {
-                case Position.PreBranchNode:
-                    baseNode.PreBranchNode = currentNode;
-                    break;
+                // state machine to parse the initialize section header
 
-                case Position.PostBranchNode:
-                    baseNode.PostBranchNode = currentNode;
-                    break;
+                // search for comments, whitespace, and end of line tokens
+                switch (token.Category)
+                {
+                    case Lexer.TokenCategory.Comment:
+                        // Handle comment token
+                        // Not needed in the AST
+                        break;
 
-                case Position.BaseNode:
-                    // current is the base node
-                    ASTNode savedNode = baseNode;
-                    baseNode = currentNode;
-                    switch (subPosition)
+                    case Lexer.TokenCategory.Identifier:
+                        // Handle identifier token
+                        // single statement follows
+                        currentParserState_ = State.Statement;
+                        break;
+
+                    case Lexer.TokenCategory.EndOfLine:
+                        // Handle end of line token
+                        // statement block follows
+                        currentParserState_ = State.StatementBlock;
+                        break;
+
+                    // Invalid token
+                    case Lexer.TokenCategory.Delimiter:
+                        // Handle delimiter token
+                        // single statement follows
+                        currentParserState_ = State.Parameter;
+                        break;
+
+                    case Lexer.TokenCategory.Whitespace:
+                        // Handle whitespace token
+                        // Not needed in the AST
+                        break;
+
+                    case Lexer.TokenCategory.Punctuation:
+                    case Lexer.TokenCategory.Operator:
+                    case Lexer.TokenCategory.StringLiteral:
+                    case Lexer.TokenCategory.CharLiteral:
+                    case Lexer.TokenCategory.NumericLiteral:
+                    default:
+                        // Handle invalid token outside of a section
+                        currentParserState_ = State.Invalid;
+                        break;
+                }
+            }
+        }
+
+        private void ParseProperties(LexerTokens token)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void ParseEnums(LexerTokens token)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void ParseType(LexerTokens token)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void ParseUsing(LexerTokens token)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void ParseFile(LexerTokens token)
+        {
+            // State machine to parse outside of the sections
+            // should only be comments, statement identifiers, and whitespace
+            switch (token.Category)
+            {
+                case Lexer.TokenCategory.Identifier:
+                    // Handle identifier token
+                    if (sections.Contains(token.TokenText))
                     {
-                        case Position.PreBranchNode:
-                            baseNode.PreBranchNode = savedNode;
-                            break;
-
-                        case Position.PostBranchNode:
-                            baseNode.PostBranchNode = savedNode;
-                            break;
-
-                        default:
-                            break;
+                        // Handle section token
+                        var sectionNode = new SectionNode
+                        {
+                            TokenText = token.TokenText,
+                            Category = NodeCategory.Section
+                        };
+                        // Add the current node to the tree
+                        sectionNode.AddNodeToTree(rootNode_);
+                        // Set the next state
+                        SetNextState(token.TokenText);
+                    }
+                    else
+                    {
+                        // Handle invalid token outside of a section
+                        // Not needed in the AST
                     }
                     break;
-            }
 
-            return baseNode;
-		}
+                case Lexer.TokenCategory.Comment:
+                // Handle comment token
+                case Lexer.TokenCategory.EndOfLine:
+                // Handle end of line token
+                case Lexer.TokenCategory.Whitespace:
+                    // Handle whitespace token
+
+                    // Not needed in the AST
+                    break;
+
+                // Invalid token
+                case Lexer.TokenCategory.Delimiter:
+                case Lexer.TokenCategory.Punctuation:
+                case Lexer.TokenCategory.Operator:
+                case Lexer.TokenCategory.StringLiteral:
+                case Lexer.TokenCategory.CharLiteral:
+                case Lexer.TokenCategory.NumericLiteral:
+                default:
+                    // Handle invalid token outside of a section
+                    // don't add the current node to the tree
+                    break;
+            }
+        }
     }
 }

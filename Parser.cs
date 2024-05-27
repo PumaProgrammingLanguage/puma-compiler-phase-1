@@ -24,6 +24,9 @@ namespace PumaToCpp
     /// </summary>
     internal partial class Parser
     {
+        /// <summary>
+        /// State of the parser
+        /// </summary>
         private enum State
         {
             Invalid,
@@ -45,6 +48,9 @@ namespace PumaToCpp
             end,
         }
 
+        /// <summary>
+        /// Category of the nodes in the tree
+        /// </summary>
         public enum NodeCategory
         {
             Unknown,
@@ -64,6 +70,9 @@ namespace PumaToCpp
             StatementBlock,
         }
 
+        /// <summary>
+        /// Names of the sections of Puma files
+        /// </summary>
         readonly string[] Sections =
         [
             // using
@@ -87,6 +96,9 @@ namespace PumaToCpp
             "end",
         ];
 
+        /// <summary>
+        /// Sections of Puma files
+        /// </summary>
         public enum Section
         {
             File,
@@ -104,79 +116,82 @@ namespace PumaToCpp
             end,
         }
 
-        readonly string[] Keywords =
-        [
-            "using",
-            "as",
-            "type",
-            "trait",
-            "is",
-            "has",
-            "are",
-            "value",
-            "object",
-            "enums",
-            "base",
-            "properties",
-            "functions",
-            "start",
-            "initialize",
-            "finalize",
-            "return",
-            "yield",
-            "public",
-            "private",
-            "global",
-            "Internal",
-            "var",
-            "const",
-            "readonly",
-            "readwrite",
-            "int",
-            "i64",
-            "i32",
-            "i16",
-            "i8",
-            "uint",
-            "u64",
-            "u32",
-            "u16",
-            "u8",
-            "float",
-            "f64",
-            "f32",
-            "fixed",
-            "fx64",
-            "fx32",
-            "char",
-            "str",
-            "bool",
-            "implicit",
-            "explicit",
-            "operator",
-            "get",
-            "set",
-            "with",
-            "if",
-            "elseif",
-            "else",
-            "and",
-            "or",
-            "not",
-            "for",
-            "in",
-            "while",
-            "Loop",
-            "begin",
-            "end",
-            "break",
-            "continue",
-            "match",
-            "with",
-            "multithread",
-            "multiprocess"
-        ];
+        //readonly string[] Keywords =
+        //[
+        //    "using",
+        //    "as",
+        //    "type",
+        //    "trait",
+        //    "is",
+        //    "has",
+        //    "are",
+        //    "value",
+        //    "object",
+        //    "enums",
+        //    "base",
+        //    "properties",
+        //    "functions",
+        //    "start",
+        //    "initialize",
+        //    "finalize",
+        //    "return",
+        //    "yield",
+        //    "public",
+        //    "private",
+        //    "global",
+        //    "Internal",
+        //    "var",
+        //    "const",
+        //    "readonly",
+        //    "readwrite",
+        //    "int",
+        //    "i64",
+        //    "i32",
+        //    "i16",
+        //    "i8",
+        //    "uint",
+        //    "u64",
+        //    "u32",
+        //    "u16",
+        //    "u8",
+        //    "float",
+        //    "f64",
+        //    "f32",
+        //    "fixed",
+        //    "fx64",
+        //    "fx32",
+        //    "char",
+        //    "str",
+        //    "bool",
+        //    "implicit",
+        //    "explicit",
+        //    "operator",
+        //    "get",
+        //    "set",
+        //    "with",
+        //    "if",
+        //    "elseif",
+        //    "else",
+        //    "and",
+        //    "or",
+        //    "not",
+        //    "for",
+        //    "in",
+        //    "while",
+        //    "Loop",
+        //    "begin",
+        //    "end",
+        //    "break",
+        //    "continue",
+        //    "match",
+        //    "with",
+        //    "multithread",
+        //    "multiprocess"
+        //];
 
+        /// <summary>
+        /// Position of the node in the tree in respect to the current node
+        /// </summary>
         enum Position
         {
             None = 0,
@@ -185,6 +200,9 @@ namespace PumaToCpp
             PreviousNode,       // bidirectional pointer list
         }
 
+        /// <summary>
+        /// fields of the parser
+        /// </summary>
         private readonly RootNode CurrentRootNode = new()
         {
             TokenText = "root",
@@ -194,17 +212,19 @@ namespace PumaToCpp
         private State CurrentParserState = State.File;
         private Section CurrentSection = Section.File;
 
-        //
+        /// <summary>
+        /// constructor of the parser
+        /// </summary>
         public Parser()
         {
             LastNode = CurrentRootNode;
         }
 
-        public RootNode GetRoot()
-        {
-            return CurrentRootNode;
-        }
-
+        /// <summary>
+        /// Main parser method
+        /// </summary>
+        /// <param name="tokens"></param>
+        /// <returns></returns>
         public RootNode Parse(List<LexerTokens> tokens)
         {
             foreach (LexerTokens token in tokens)
@@ -285,10 +305,629 @@ namespace PumaToCpp
             return CurrentRootNode;
         }
 
+        /// <summary>
+        /// Parse the file
+        /// </summary>
+        /// <param name="token"></param>
+        private void ParseFile(LexerTokens token)
+        {
+            // State machine to parse outside of the sections
+            // should only be comments, statement identifiers, and whitespace
+            switch (token.Category)
+            {
+                case Lexer.TokenCategory.Identifier:
+                    // Handle identifier token
+                    if (Sections.Contains(token.TokenText))
+                    {
+                        // Handle section token
+                        var sectionNode = new SectionNode
+                        {
+                            TokenText = token.TokenText,
+                            Category = NodeCategory.Section
+                        };
+                        // Add the current node to the tree
+                        sectionNode.AddNodeToTree(CurrentRootNode);
+                        // Set the next state
+                        SetNextState(token.TokenText);
+                    }
+                    else
+                    {
+                        // Handle invalid token outside of a section
+                        // Not needed in the AST
+                    }
+                    break;
+
+                case Lexer.TokenCategory.Comment:
+                // Handle comment token
+                case Lexer.TokenCategory.EndOfLine:
+                // Handle end of line token
+                case Lexer.TokenCategory.Whitespace:
+                    // Handle whitespace token
+
+                    // Not needed in the AST
+                    break;
+
+                // Invalid token
+                case Lexer.TokenCategory.Delimiter:
+                case Lexer.TokenCategory.Punctuation:
+                case Lexer.TokenCategory.Operator:
+                case Lexer.TokenCategory.StringLiteral:
+                case Lexer.TokenCategory.CharLiteral:
+                case Lexer.TokenCategory.NumericLiteral:
+                default:
+                    // Handle invalid token outside of a section
+                    // don't add the current node to the tree
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Parse the using section
+        /// </summary>
+        /// <param name="token"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void ParseUsing(LexerTokens token)
+        {
+            switch (token.Category)
+            {
+                case Lexer.TokenCategory.Comment:
+                    // Handle comment token
+                    // Not needed in the AST
+                    break;
+
+                case Lexer.TokenCategory.Identifier:
+                    // Handle identifier token
+                    if (Sections.Contains(token.TokenText))
+                    {
+                        // Handle section token
+                        var sectionNode = new SectionNode
+                        {
+                            TokenText = token.TokenText,
+                            Category = NodeCategory.Section
+                        };
+                        // Add the current node to the tree
+                        sectionNode.AddNodeToTree(CurrentRootNode);
+                        // Set the next state
+                        SetNextState(token.TokenText);
+                    }
+                    else
+                    {
+                        // Handle invalid token outside of a section
+                        // Not needed in the AST
+                    }
+                    break;
+
+                case Lexer.TokenCategory.EndOfLine:
+                case Lexer.TokenCategory.Whitespace:
+                    // Handle whitespace token
+                    // Not needed in the AST
+                    break;
+
+                // Invalid token
+                case Lexer.TokenCategory.Delimiter:
+                case Lexer.TokenCategory.Punctuation:
+                case Lexer.TokenCategory.Operator:
+                case Lexer.TokenCategory.StringLiteral:
+                case Lexer.TokenCategory.CharLiteral:
+                case Lexer.TokenCategory.NumericLiteral:
+                default:
+                    // Handle invalid token outside of a section
+                    CurrentParserState = State.Invalid;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Parse the namespace section
+        /// </summary>
+        /// <param name="token"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void ParseNamespace(LexerTokens token)
+        {
+            switch (token.Category)
+            {
+                case Lexer.TokenCategory.Comment:
+                    // Handle comment token
+                    // Not needed in the AST
+                    break;
+
+                case Lexer.TokenCategory.Identifier:
+                    // Handle identifier token
+                    if (Sections.Contains(token.TokenText))
+                    {
+                        // Handle section token
+                        var sectionNode = new SectionNode
+                        {
+                            TokenText = token.TokenText,
+                            Category = NodeCategory.Section
+                        };
+                        // Add the current node to the tree
+                        sectionNode.AddNodeToTree(CurrentRootNode);
+                        // Set the next state
+                        SetNextState(token.TokenText);
+                    }
+                    else
+                    {
+                        // Handle invalid token outside of a section
+                        // Not needed in the AST
+                    }
+                    break;
+
+                case Lexer.TokenCategory.EndOfLine:
+                case Lexer.TokenCategory.Whitespace:
+                    // Handle whitespace token
+                    // Not needed in the AST
+                    break;
+
+                // Invalid token
+                case Lexer.TokenCategory.Delimiter:
+                case Lexer.TokenCategory.Punctuation:
+                case Lexer.TokenCategory.Operator:
+                case Lexer.TokenCategory.StringLiteral:
+                case Lexer.TokenCategory.CharLiteral:
+                case Lexer.TokenCategory.NumericLiteral:
+                default:
+                    // Handle invalid token outside of a section
+                    CurrentParserState = State.Invalid;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Parse the type section
+        /// </summary>
+        /// <param name="token"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void ParseType(LexerTokens token)
+        {
+            switch (token.Category)
+            {
+                case Lexer.TokenCategory.Comment:
+                    // Handle comment token
+                    // Not needed in the AST
+                    break;
+
+                case Lexer.TokenCategory.Identifier:
+                    // Handle identifier token
+                    if (Sections.Contains(token.TokenText))
+                    {
+                        // Handle section token
+                        var sectionNode = new SectionNode
+                        {
+                            TokenText = token.TokenText,
+                            Category = NodeCategory.Section
+                        };
+                        // Add the current node to the tree
+                        sectionNode.AddNodeToTree(CurrentRootNode);
+                        // Set the next state
+                        SetNextState(token.TokenText);
+                    }
+                    else
+                    {
+                        // Handle invalid token outside of a section
+                        // Not needed in the AST
+                    }
+                    break;
+
+                case Lexer.TokenCategory.EndOfLine:
+                case Lexer.TokenCategory.Whitespace:
+                    // Handle whitespace token
+                    // Not needed in the AST
+                    break;
+
+                // Invalid token
+                case Lexer.TokenCategory.Delimiter:
+                case Lexer.TokenCategory.Punctuation:
+                case Lexer.TokenCategory.Operator:
+                case Lexer.TokenCategory.StringLiteral:
+                case Lexer.TokenCategory.CharLiteral:
+                case Lexer.TokenCategory.NumericLiteral:
+                default:
+                    // Handle invalid token outside of a section
+                    CurrentParserState = State.Invalid;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Parse the trait section
+        /// </summary>
+        /// <param name="token"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void ParseTrait(LexerTokens token)
+        {
+            switch (token.Category)
+            {
+                case Lexer.TokenCategory.Comment:
+                    // Handle comment token
+                    // Not needed in the AST
+                    break;
+
+                case Lexer.TokenCategory.Identifier:
+                    // Handle identifier token
+                    if (Sections.Contains(token.TokenText))
+                    {
+                        // Handle section token
+                        var sectionNode = new SectionNode
+                        {
+                            TokenText = token.TokenText,
+                            Category = NodeCategory.Section
+                        };
+                        // Add the current node to the tree
+                        sectionNode.AddNodeToTree(CurrentRootNode);
+                        // Set the next state
+                        SetNextState(token.TokenText);
+                    }
+                    else
+                    {
+                        // Handle invalid token outside of a section
+                        // Not needed in the AST
+                    }
+                    break;
+
+                case Lexer.TokenCategory.EndOfLine:
+                case Lexer.TokenCategory.Whitespace:
+                    // Handle whitespace token
+                    // Not needed in the AST
+                    break;
+
+                // Invalid token
+                case Lexer.TokenCategory.Delimiter:
+                case Lexer.TokenCategory.Punctuation:
+                case Lexer.TokenCategory.Operator:
+                case Lexer.TokenCategory.StringLiteral:
+                case Lexer.TokenCategory.CharLiteral:
+                case Lexer.TokenCategory.NumericLiteral:
+                default:
+                    // Handle invalid token outside of a section
+                    CurrentParserState = State.Invalid;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Parse the enums section
+        /// </summary>
+        /// <param name="token"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void ParseEnums(LexerTokens token)
+        {
+            switch (token.Category)
+            {
+                case Lexer.TokenCategory.Comment:
+                    // Handle comment token
+                    // Not needed in the AST
+                    break;
+
+                case Lexer.TokenCategory.Identifier:
+                    // Handle identifier token
+                    if (Sections.Contains(token.TokenText))
+                    {
+                        // Handle section token
+                        var sectionNode = new SectionNode
+                        {
+                            TokenText = token.TokenText,
+                            Category = NodeCategory.Section
+                        };
+                        // Add the current node to the tree
+                        sectionNode.AddNodeToTree(CurrentRootNode);
+                        // Set the next state
+                        SetNextState(token.TokenText);
+                    }
+                    else
+                    {
+                        // Handle invalid token outside of a section
+                        // Not needed in the AST
+                    }
+                    break;
+
+                case Lexer.TokenCategory.EndOfLine:
+                case Lexer.TokenCategory.Whitespace:
+                    // Handle whitespace token
+                    // Not needed in the AST
+                    break;
+
+                // Invalid token
+                case Lexer.TokenCategory.Delimiter:
+                case Lexer.TokenCategory.Punctuation:
+                case Lexer.TokenCategory.Operator:
+                case Lexer.TokenCategory.StringLiteral:
+                case Lexer.TokenCategory.CharLiteral:
+                case Lexer.TokenCategory.NumericLiteral:
+                default:
+                    // Handle invalid token outside of a section
+                    CurrentParserState = State.Invalid;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Parse the properties section
+        /// </summary>
+        /// <param name="token"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void ParseProperties(LexerTokens token)
+        {
+            switch (token.Category)
+            {
+                case Lexer.TokenCategory.Comment:
+                    // Handle comment token
+                    // Not needed in the AST
+                    break;
+
+                case Lexer.TokenCategory.Identifier:
+                    // Handle identifier token
+                    if (Sections.Contains(token.TokenText))
+                    {
+                        // Handle section token
+                        var sectionNode = new SectionNode
+                        {
+                            TokenText = token.TokenText,
+                            Category = NodeCategory.Section
+                        };
+                        // Add the current node to the tree
+                        sectionNode.AddNodeToTree(CurrentRootNode);
+                        // Set the next state
+                        SetNextState(token.TokenText);
+                    }
+                    else
+                    {
+                        // Handle invalid token outside of a section
+                        // Not needed in the AST
+                    }
+                    break;
+
+                case Lexer.TokenCategory.EndOfLine:
+                case Lexer.TokenCategory.Whitespace:
+                    // Handle whitespace token
+                    // Not needed in the AST
+                    break;
+
+                // Invalid token
+                case Lexer.TokenCategory.Delimiter:
+                case Lexer.TokenCategory.Punctuation:
+                case Lexer.TokenCategory.Operator:
+                case Lexer.TokenCategory.StringLiteral:
+                case Lexer.TokenCategory.CharLiteral:
+                case Lexer.TokenCategory.NumericLiteral:
+                default:
+                    // Handle invalid token outside of a section
+                    CurrentParserState = State.Invalid;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Parse the start section
+        /// </summary>
+        /// <param name="token"></param>
+        private void ParseStart(LexerTokens token)
+        {
+            // state machine to parse the start section header
+            switch (token.Category)
+            {
+                case Lexer.TokenCategory.Comment:
+                    // Handle comment token
+                    // Not needed in the AST
+                    break;
+
+                case Lexer.TokenCategory.Identifier:
+                    // Handle identifier token
+                    if (Sections.Contains(token.TokenText))
+                    {
+                        // Handle section token
+                        var sectionNode = new SectionNode
+                        {
+                            TokenText = token.TokenText,
+                            Category = NodeCategory.Section
+                        };
+                        // Add the current node to the tree
+                        sectionNode.AddNodeToTree(CurrentRootNode);
+                        // Set the next state
+                        SetNextState(token.TokenText);
+                    }
+                    else
+                    {
+                        // Handle invalid token outside of a section
+                        // Not needed in the AST
+                    }
+                    break;
+
+                case Lexer.TokenCategory.EndOfLine:
+                case Lexer.TokenCategory.Whitespace:
+                    // Handle whitespace token
+                    // Not needed in the AST
+                    break;
+
+                // Invalid token
+                case Lexer.TokenCategory.Delimiter:
+                case Lexer.TokenCategory.Punctuation:
+                case Lexer.TokenCategory.Operator:
+                case Lexer.TokenCategory.StringLiteral:
+                case Lexer.TokenCategory.CharLiteral:
+                case Lexer.TokenCategory.NumericLiteral:
+                default:
+                    // Handle invalid token outside of a section
+                    CurrentParserState = State.Invalid;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Parse the initialize section
+        /// </summary>
+        /// <param name="token"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void ParseInitialize(LexerTokens token)
+        {
+            switch (token.Category)
+            {
+                case Lexer.TokenCategory.Comment:
+                    // Handle comment token
+                    // Not needed in the AST
+                    break;
+
+                case Lexer.TokenCategory.Identifier:
+                    // Handle identifier token
+                    if (Sections.Contains(token.TokenText))
+                    {
+                        // Handle section token
+                        var sectionNode = new SectionNode
+                        {
+                            TokenText = token.TokenText,
+                            Category = NodeCategory.Section
+                        };
+                        // Add the current node to the tree
+                        sectionNode.AddNodeToTree(CurrentRootNode);
+                        // Set the next state
+                        SetNextState(token.TokenText);
+                    }
+                    else
+                    {
+                        // Handle invalid token outside of a section
+                        // Not needed in the AST
+                    }
+                    break;
+
+                case Lexer.TokenCategory.EndOfLine:
+                case Lexer.TokenCategory.Whitespace:
+                    // Handle whitespace token
+                    // Not needed in the AST
+                    break;
+
+                // Invalid token
+                case Lexer.TokenCategory.Delimiter:
+                case Lexer.TokenCategory.Punctuation:
+                case Lexer.TokenCategory.Operator:
+                case Lexer.TokenCategory.StringLiteral:
+                case Lexer.TokenCategory.CharLiteral:
+                case Lexer.TokenCategory.NumericLiteral:
+                default:
+                    // Handle invalid token outside of a section
+                    CurrentParserState = State.Invalid;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Parse the finalize section
+        /// </summary>
+        /// <param name="token"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void ParseFinalize(LexerTokens token)
+        {
+            switch (token.Category)
+            {
+                case Lexer.TokenCategory.Comment:
+                    // Handle comment token
+                    // Not needed in the AST
+                    break;
+
+                case Lexer.TokenCategory.Identifier:
+                    // Handle identifier token
+                    if (Sections.Contains(token.TokenText))
+                    {
+                        // Handle section token
+                        var sectionNode = new SectionNode
+                        {
+                            TokenText = token.TokenText,
+                            Category = NodeCategory.Section
+                        };
+                        // Add the current node to the tree
+                        sectionNode.AddNodeToTree(CurrentRootNode);
+                        // Set the next state
+                        SetNextState(token.TokenText);
+                    }
+                    else
+                    {
+                        // Handle invalid token outside of a section
+                        // Not needed in the AST
+                    }
+                    break;
+
+                case Lexer.TokenCategory.EndOfLine:
+                case Lexer.TokenCategory.Whitespace:
+                    // Handle whitespace token
+                    // Not needed in the AST
+                    break;
+
+                // Invalid token
+                case Lexer.TokenCategory.Delimiter:
+                case Lexer.TokenCategory.Punctuation:
+                case Lexer.TokenCategory.Operator:
+                case Lexer.TokenCategory.StringLiteral:
+                case Lexer.TokenCategory.CharLiteral:
+                case Lexer.TokenCategory.NumericLiteral:
+                default:
+                    // Handle invalid token outside of a section
+                    CurrentParserState = State.Invalid;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Parse the functions section
+        /// </summary>
+        /// <param name="token"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void ParseFunctions(LexerTokens token)
+        {
+            switch (token.Category)
+            {
+                case Lexer.TokenCategory.Comment:
+                    // Handle comment token
+                    // Not needed in the AST
+                    break;
+
+                case Lexer.TokenCategory.Identifier:
+                    // Handle identifier token
+                    if (Sections.Contains(token.TokenText))
+                    {
+                        // Handle section token
+                        var sectionNode = new SectionNode
+                        {
+                            TokenText = token.TokenText,
+                            Category = NodeCategory.Section
+                        };
+                        // Add the current node to the tree
+                        sectionNode.AddNodeToTree(CurrentRootNode);
+                        // Set the next state
+                        SetNextState(token.TokenText);
+                    }
+                    else
+                    {
+                        // Handle invalid token outside of a section
+                        // Not needed in the AST
+                    }
+                    break;
+
+                case Lexer.TokenCategory.EndOfLine:
+                case Lexer.TokenCategory.Whitespace:
+                    // Handle whitespace token
+                    // Not needed in the AST
+                    break;
+
+                // Invalid token
+                case Lexer.TokenCategory.Delimiter:
+                case Lexer.TokenCategory.Punctuation:
+                case Lexer.TokenCategory.Operator:
+                case Lexer.TokenCategory.StringLiteral:
+                case Lexer.TokenCategory.CharLiteral:
+                case Lexer.TokenCategory.NumericLiteral:
+                default:
+                    // Handle invalid token outside of a section
+                    CurrentParserState = State.Invalid;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Parse the end of the file
+        /// </summary>
+        /// <param name="token"></param>
         private void ParseEnd(LexerTokens token)
         {
-            // state machine to parse the initialize section header
-
+            // state machine to parse the end of the sections
             // search for comments, whitespace, and end of line tokens
             switch (token.Category)
             {
@@ -311,49 +950,11 @@ namespace PumaToCpp
                     break;
             }
         }
-        private void ParseParameters(LexerTokens token)
-        {
-            throw new NotImplementedException();
-        }
 
-        private void ParseNamespace(LexerTokens token)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void ParseTrait(LexerTokens token)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void ParseStatementBlock(LexerTokens token)
-        {
-            throw new NotImplementedException();
-            //// if found end token
-            //if (token.Category == Lexer.TokenCategory.Identifier && token.TokenText == "end")
-            //{
-            //    // Handle end token
-            //    CurrentParserState = State.end;
-            //}
-            //// if found a section token
-            //else if (Sections.Contains(token.TokenText))
-            //{
-            //    // Set the next state
-            //    SetNextState(token.TokenText);
-            //}
-            //else
-            //{
-            //    // parse the statement
-            //    ParseStatement(token);
-            //}
-            //return;
-        }
-
-        private void ParseStatement(LexerTokens token)
-        {
-            throw new NotImplementedException();
-        }
-
+        /// <summary>
+        /// Set the next state of the parser
+        /// </summary>
+        /// <param name="tokenText"></param>
         private void SetNextState(string? tokenText)
         {
             switch (tokenText)
@@ -420,221 +1021,62 @@ namespace PumaToCpp
             }
         }
 
+        /// <summary>
+        /// Parse the current function
+        /// </summary>
+        /// <param name="token"></param>
+        /// <exception cref="NotImplementedException"></exception>
         private void ParseFunction(LexerTokens token)
         {
             throw new NotImplementedException();
         }
 
-        private void ParseFunctions(LexerTokens token)
+        /// <summary>
+        /// Parse the parameters of a function
+        /// </summary>
+        /// <param name="token"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void ParseParameters(LexerTokens token)
         {
             throw new NotImplementedException();
         }
 
-        private void ParseFinalize(LexerTokens token)
+        /// <summary>
+        /// Parse the current statement block
+        /// </summary>
+        /// <param name="token"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void ParseStatementBlock(LexerTokens token)
         {
             throw new NotImplementedException();
-        }
-
-        private void ParseInitialize(LexerTokens token)
-        {
-            throw new NotImplementedException();
-            // state machine to parse the initialize section header
-
-            // search for comments, whitespace, and end of line tokens
-            //switch (token.Category)
+            //// if found end token
+            //if (token.Category == Lexer.TokenCategory.Identifier && token.TokenText == "end")
             //{
-            //    case Lexer.TokenCategory.Comment:
-            //        // Handle comment token
-            //        // Not needed in the AST
-            //        break;
-
-            //    case Lexer.TokenCategory.Identifier:
-            //        // Handle identifier token
-            //        if (Sections.Contains(token.TokenText))
-            //        {
-            //            // Handle section token
-            //            var sectionNode = new SectionNode
-            //            {
-            //                TokenText = token.TokenText,
-            //                Category = NodeCategory.Section
-            //            };
-            //            // Add the current node to the tree
-            //            sectionNode.AddNodeToTree(CurrentRootNode);
-            //            // Set the next state
-            //            SetNextState(token.TokenText);
-            //        }
-            //        else
-            //        {
-            //            // Handle invalid token outside of a section
-            //            // Not needed in the AST
-            //        }
-            //        break;
-
-            //    case Lexer.TokenCategory.EndOfLine:
-            //        // Handle end of line token
-            //        // statement block follows
-            //        CurrentParserState = State.StatementBlock;
-            //        break;
-
-            //    // Invalid token
-            //    case Lexer.TokenCategory.Delimiter:
-            //        // Handle delimiter token
-            //        // single statement follows
-            //        CurrentParserState = State.Parameter;
-            //        break;
-
-            //    case Lexer.TokenCategory.Whitespace:
-            //        // Handle whitespace token
-            //        // Not needed in the AST
-            //        break;
-
-            //    case Lexer.TokenCategory.Punctuation:
-            //    case Lexer.TokenCategory.Operator:
-            //    case Lexer.TokenCategory.StringLiteral:
-            //    case Lexer.TokenCategory.CharLiteral:
-            //    case Lexer.TokenCategory.NumericLiteral:
-            //    default:
-            //        // Handle invalid token outside of a section
-            //        CurrentParserState = State.Invalid;
-            //        break;
+            //    // Handle end token
+            //    CurrentParserState = State.end;
             //}
+            //// if found a section token
+            //else if (Sections.Contains(token.TokenText))
+            //{
+            //    // Set the next state
+            //    SetNextState(token.TokenText);
+            //}
+            //else
+            //{
+            //    // parse the statement
+            //    ParseStatement(token);
+            //}
+            //return;
         }
 
-        private void ParseStart(LexerTokens token)
-        {
-            {
-                // state machine to parse the initialize section header
-
-                // search for comments, whitespace, and end of line tokens
-                switch (token.Category)
-                {
-                    case Lexer.TokenCategory.Comment:
-                        // Handle comment token
-                        // Not needed in the AST
-                        break;
-
-                    case Lexer.TokenCategory.Identifier:
-                        // Handle identifier token
-                        if (Sections.Contains(token.TokenText))
-                        {
-                            // Handle section token
-                            var sectionNode = new SectionNode
-                            {
-                                TokenText = token.TokenText,
-                                Category = NodeCategory.Section
-                            };
-                            // Add the current node to the tree
-                            sectionNode.AddNodeToTree(CurrentRootNode);
-                            // Set the next state
-                            SetNextState(token.TokenText);
-                        }
-                        else
-                        {
-                            // Handle invalid token outside of a section
-                            // Not needed in the AST
-                        }
-                        break;
-
-                    case Lexer.TokenCategory.EndOfLine:
-                        // Handle end of line token
-                        // statement block follows
-                        break;
-
-                    // Invalid token
-                    case Lexer.TokenCategory.Delimiter:
-                        // Handle delimiter token
-                        // single statement follows
-                        CurrentParserState = State.Parameter;
-                        break;
-
-                    case Lexer.TokenCategory.Whitespace:
-                        // Handle whitespace token
-                        // Not needed in the AST
-                        break;
-
-                    case Lexer.TokenCategory.Punctuation:
-                    case Lexer.TokenCategory.Operator:
-                    case Lexer.TokenCategory.StringLiteral:
-                    case Lexer.TokenCategory.CharLiteral:
-                    case Lexer.TokenCategory.NumericLiteral:
-                    default:
-                        // Handle invalid token outside of a section
-                        CurrentParserState = State.Invalid;
-                        break;
-                }
-            }
-        }
-
-        private void ParseProperties(LexerTokens token)
+        /// <summary>
+        /// Parse the current statement
+        /// </summary>
+        /// <param name="token"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void ParseStatement(LexerTokens token)
         {
             throw new NotImplementedException();
-        }
-
-        private void ParseEnums(LexerTokens token)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void ParseType(LexerTokens token)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void ParseUsing(LexerTokens token)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void ParseFile(LexerTokens token)
-        {
-            // State machine to parse outside of the sections
-            // should only be comments, statement identifiers, and whitespace
-            switch (token.Category)
-            {
-                case Lexer.TokenCategory.Identifier:
-                    // Handle identifier token
-                    if (Sections.Contains(token.TokenText))
-                    {
-                        // Handle section token
-                        var sectionNode = new SectionNode
-                        {
-                            TokenText = token.TokenText,
-                            Category = NodeCategory.Section
-                        };
-                        // Add the current node to the tree
-                        sectionNode.AddNodeToTree(CurrentRootNode);
-                        // Set the next state
-                        SetNextState(token.TokenText);
-                    }
-                    else
-                    {
-                        // Handle invalid token outside of a section
-                        // Not needed in the AST
-                    }
-                    break;
-
-                case Lexer.TokenCategory.Comment:
-                // Handle comment token
-                case Lexer.TokenCategory.EndOfLine:
-                // Handle end of line token
-                case Lexer.TokenCategory.Whitespace:
-                    // Handle whitespace token
-
-                    // Not needed in the AST
-                    break;
-
-                // Invalid token
-                case Lexer.TokenCategory.Delimiter:
-                case Lexer.TokenCategory.Punctuation:
-                case Lexer.TokenCategory.Operator:
-                case Lexer.TokenCategory.StringLiteral:
-                case Lexer.TokenCategory.CharLiteral:
-                case Lexer.TokenCategory.NumericLiteral:
-                default:
-                    // Handle invalid token outside of a section
-                    // don't add the current node to the tree
-                    break;
-            }
         }
     }
 }

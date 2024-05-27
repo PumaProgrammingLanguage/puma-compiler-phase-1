@@ -40,8 +40,7 @@ namespace PumaToCpp
             List<LexerTokens> tokens = lexer.Tokenize(source);
 
             // call the method under test
-            parser.Parse(tokens);
-            var node = parser.GetRoot();
+            var node = parser.Parse(tokens);
 
             // Assert
             Assert.AreNotEqual(null, node);
@@ -54,6 +53,15 @@ namespace PumaToCpp
             Assert.AreNotEqual(null, sectionNode);
             Assert.AreNotEqual(null, sectionNode?.TokenText);
             Assert.AreEqual("start", sectionNode?.TokenText);
+            Assert.AreEqual(NodeCategory.Section, sectionNode?.Category);
+            Assert.AreNotEqual(null, sectionNode?.PreviousNode);
+            Assert.AreNotEqual(null, sectionNode?.PreviousNode?.TokenText);
+            Assert.AreEqual("root", sectionNode?.PreviousNode?.TokenText);
+            // this needs to pass
+            sectionNode = node.SectionBranch.ElementAt<SectionNode>(1);
+            Assert.AreNotEqual(null, sectionNode);
+            Assert.AreNotEqual(null, sectionNode?.TokenText);
+            Assert.AreEqual("end", sectionNode?.TokenText);
             Assert.AreEqual(NodeCategory.Section, sectionNode?.Category);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode?.TokenText);

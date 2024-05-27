@@ -37,9 +37,40 @@ namespace PumaToCpp
         /// <param name="ast"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        internal object? Generate(object ast)
+        internal string Generate(RootNode ast)
         {
-            return "";
+            // intermediate language source code
+            string il = "";
+            string sectionTerminatingCode = "";
+
+            foreach (var sectionNode in ast.SectionBranch)
+            {
+                if (sectionNode.Category == NodeCategory.Section)
+                {
+                    switch (sectionNode.TokenText)
+                    {
+                        case "start":
+                            // generate the intermediate language source code for the section
+                            il += "void main()\n{\n";
+                            sectionTerminatingCode += "}\n";
+
+                            // put section code here
+
+
+                            break;
+                        case "end":
+                            // generate the intermediate language source code for the section
+                            // add the terminating code for the section
+                            il += sectionTerminatingCode;
+                            // reset the terminating code for the section
+                            sectionTerminatingCode = "";
+                            break;
+                    }
+                }
+            }
+
+            // return the intermediate language source code
+            return il;
         }
     }
 }

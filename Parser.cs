@@ -64,7 +64,7 @@ namespace PumaToCpp
             StatementBlock,
         }
 
-        readonly string[] sections =
+        readonly string[] Sections =
         [
             // using
             "using",
@@ -83,9 +83,11 @@ namespace PumaToCpp
             "finalize",
             // functions
             "functions",
+            // end
+            "end",
         ];
 
-        public enum Sections
+        public enum Section
         {
             File,
             Using,
@@ -99,9 +101,10 @@ namespace PumaToCpp
             Finalize,
             Functions,
             Invalid,
+            end,
         }
 
-        readonly string[] keywords =
+        readonly string[] Keywords =
         [
             "using",
             "as",
@@ -182,27 +185,31 @@ namespace PumaToCpp
             PreviousNode,       // bidirectional pointer list
         }
 
-        private readonly RootNode rootNode_ = new()
+        private readonly RootNode CurrentRootNode = new()
         {
             TokenText = "root",
             Category = NodeCategory.Root
         };
-        private ASTNode? lastNode_ = null;
-        private State currentParserState_ = State.File;
-        private Sections currentSection_ = Sections.File;
+        private ASTNode? LastNode = null;
+        private State CurrentParserState = State.File;
+        private Section CurrentSection = Section.File;
+
+        //
+        public Parser()
+        {
+            LastNode = CurrentRootNode;
+        }
 
         public RootNode GetRoot()
         {
-            return rootNode_;
+            return CurrentRootNode;
         }
 
         public RootNode Parse(List<LexerTokens> tokens)
         {
-            lastNode_ = rootNode_;
-
             foreach (LexerTokens token in tokens)
             {
-                switch (currentParserState_)
+                switch (CurrentParserState)
                 {
                     case State.File:
                         ParseFile(token);
@@ -275,46 +282,33 @@ namespace PumaToCpp
                 }
             }
 
-            return rootNode_;
+            return CurrentRootNode;
         }
 
         private void ParseEnd(LexerTokens token)
         {
+            // state machine to parse the initialize section header
+
+            // search for comments, whitespace, and end of line tokens
+            switch (token.Category)
             {
-                // state machine to parse the initialize section header
+                case Lexer.TokenCategory.Comment:
+                case Lexer.TokenCategory.EndOfLine:
+                case Lexer.TokenCategory.Whitespace:
+                    // Not needed in the AST
+                    break;
 
-                // search for comments, whitespace, and end of line tokens
-                switch (token.Category)
-                {
-                    case Lexer.TokenCategory.Comment:
-                        // Handle comment token
-                        // Not needed in the AST
-                        break;
-
-                    case Lexer.TokenCategory.EndOfLine:
-                        // Handle end of line token
-                        // statement block follows
-                        currentParserState_ = State.StatementBlock;
-                        break;
-
-                    // Invalid token
-                    case Lexer.TokenCategory.Whitespace:
-                        // Handle whitespace token
-                        // Not needed in the AST
-                        break;
-
-                    case Lexer.TokenCategory.Delimiter:
-                    case Lexer.TokenCategory.Identifier:
-                    case Lexer.TokenCategory.Punctuation:
-                    case Lexer.TokenCategory.Operator:
-                    case Lexer.TokenCategory.StringLiteral:
-                    case Lexer.TokenCategory.CharLiteral:
-                    case Lexer.TokenCategory.NumericLiteral:
-                    default:
-                        // Handle invalid token outside of a section
-                        currentParserState_ = State.Invalid;
-                        break;
-                }
+                case Lexer.TokenCategory.Delimiter:
+                case Lexer.TokenCategory.Identifier:
+                case Lexer.TokenCategory.Punctuation:
+                case Lexer.TokenCategory.Operator:
+                case Lexer.TokenCategory.StringLiteral:
+                case Lexer.TokenCategory.CharLiteral:
+                case Lexer.TokenCategory.NumericLiteral:
+                default:
+                    // Handle invalid token outside of a section
+                    CurrentParserState = State.Invalid;
+                    break;
             }
         }
         private void ParseParameters(LexerTokens token)
@@ -334,24 +328,25 @@ namespace PumaToCpp
 
         private void ParseStatementBlock(LexerTokens token)
         {
-            // if found end token
-            if (token.Category == Lexer.TokenCategory.Identifier && token.TokenText == "end")
-            {
-                // Handle end token
-                currentParserState_ = State.end;
-            }
-            // if found a section token
-            else if (sections.Contains(token.TokenText))
-            {
-                // Set the next state
-                SetNextState(token.TokenText);
-            }
-            else
-            {
-                // parse the statement
-                ParseStatement(token);
-            }
-            return;
+            throw new NotImplementedException();
+            //// if found end token
+            //if (token.Category == Lexer.TokenCategory.Identifier && token.TokenText == "end")
+            //{
+            //    // Handle end token
+            //    CurrentParserState = State.end;
+            //}
+            //// if found a section token
+            //else if (Sections.Contains(token.TokenText))
+            //{
+            //    // Set the next state
+            //    SetNextState(token.TokenText);
+            //}
+            //else
+            //{
+            //    // parse the statement
+            //    ParseStatement(token);
+            //}
+            //return;
         }
 
         private void ParseStatement(LexerTokens token)
@@ -364,58 +359,63 @@ namespace PumaToCpp
             switch (tokenText)
             {
                 case "using":
-                    currentParserState_ = State.Using;
-                    currentSection_ = Sections.Using;
+                    CurrentParserState = State.Using;
+                    CurrentSection = Section.Using;
                     break;
 
                 case "type":
-                    currentParserState_ = State.Type;
-                    currentSection_ = Sections.Type;
+                    CurrentParserState = State.Type;
+                    CurrentSection = Section.Type;
                     break;
 
                 case "trait":
-                    currentParserState_ = State.Trait;
-                    currentSection_ = Sections.Trait;
+                    CurrentParserState = State.Trait;
+                    CurrentSection = Section.Trait;
                     break;
 
                 case "namespace":
-                    currentParserState_ = State.Namespace;
-                    currentSection_ = Sections.Namespace;
+                    CurrentParserState = State.Namespace;
+                    CurrentSection = Section.Namespace;
                     break;
 
                 case "enums":
-                    currentParserState_ = State.Enums;
-                    currentSection_ = Sections.Enums;
+                    CurrentParserState = State.Enums;
+                    CurrentSection = Section.Enums;
                     break;
 
                 case "properties":
-                    currentParserState_ = State.Properties;
-                    currentSection_ = Sections.Properties;
+                    CurrentParserState = State.Properties;
+                    CurrentSection = Section.Properties;
                     break;
 
                 case "initialize":
-                    currentParserState_ = State.Initialize;
-                    currentSection_ = Sections.Initialize;
+                    CurrentParserState = State.Initialize;
+                    CurrentSection = Section.Initialize;
                     break;
 
                 case "start":
-                    currentParserState_ = State.Start;
-                    currentSection_ = Sections.Start;
+                    CurrentParserState = State.Start;
+                    CurrentSection = Section.Start;
                     break;
 
                 case "finalize":
-                    currentParserState_ = State.Finalize;
-                    currentSection_ = Sections.Finalize;
+                    CurrentParserState = State.Finalize;
+                    CurrentSection = Section.Finalize;
                     break;
 
                 case "functions":
-                    currentParserState_ = State.Functions;
-                    currentSection_ = Sections.Functions;
+                    CurrentParserState = State.Functions;
+                    CurrentSection = Section.Functions;
+                    break;
+
+                case "end":
+                    CurrentParserState = State.end;
+                    CurrentSection = Section.end;
                     break;
 
                 default:
                     // invalid section
-                    currentSection_ = Sections.Invalid;
+                    CurrentSection = Section.Invalid;
                     break;
             }
         }
@@ -437,50 +437,67 @@ namespace PumaToCpp
 
         private void ParseInitialize(LexerTokens token)
         {
+            throw new NotImplementedException();
             // state machine to parse the initialize section header
 
             // search for comments, whitespace, and end of line tokens
-            switch (token.Category)
-            {
-                case Lexer.TokenCategory.Comment:
-                    // Handle comment token
-                    // Not needed in the AST
-                    break;
+            //switch (token.Category)
+            //{
+            //    case Lexer.TokenCategory.Comment:
+            //        // Handle comment token
+            //        // Not needed in the AST
+            //        break;
 
-                case Lexer.TokenCategory.Identifier:
-                    // Handle identifier token
-                    // single statement follows
-                    currentParserState_ = State.Statement;
-                    break;
+            //    case Lexer.TokenCategory.Identifier:
+            //        // Handle identifier token
+            //        if (Sections.Contains(token.TokenText))
+            //        {
+            //            // Handle section token
+            //            var sectionNode = new SectionNode
+            //            {
+            //                TokenText = token.TokenText,
+            //                Category = NodeCategory.Section
+            //            };
+            //            // Add the current node to the tree
+            //            sectionNode.AddNodeToTree(CurrentRootNode);
+            //            // Set the next state
+            //            SetNextState(token.TokenText);
+            //        }
+            //        else
+            //        {
+            //            // Handle invalid token outside of a section
+            //            // Not needed in the AST
+            //        }
+            //        break;
 
-                case Lexer.TokenCategory.EndOfLine:
-                    // Handle end of line token
-                    // statement block follows
-                    currentParserState_ = State.StatementBlock;
-                    break;
+            //    case Lexer.TokenCategory.EndOfLine:
+            //        // Handle end of line token
+            //        // statement block follows
+            //        CurrentParserState = State.StatementBlock;
+            //        break;
 
-                // Invalid token
-                case Lexer.TokenCategory.Delimiter:
-                    // Handle delimiter token
-                    // single statement follows
-                    currentParserState_ = State.Parameter;
-                    break;
+            //    // Invalid token
+            //    case Lexer.TokenCategory.Delimiter:
+            //        // Handle delimiter token
+            //        // single statement follows
+            //        CurrentParserState = State.Parameter;
+            //        break;
 
-                case Lexer.TokenCategory.Whitespace:
-                    // Handle whitespace token
-                    // Not needed in the AST
-                    break;
+            //    case Lexer.TokenCategory.Whitespace:
+            //        // Handle whitespace token
+            //        // Not needed in the AST
+            //        break;
 
-                case Lexer.TokenCategory.Punctuation:
-                case Lexer.TokenCategory.Operator:
-                case Lexer.TokenCategory.StringLiteral:
-                case Lexer.TokenCategory.CharLiteral:
-                case Lexer.TokenCategory.NumericLiteral:
-                default:
-                    // Handle invalid token outside of a section
-                    currentParserState_ = State.Invalid;
-                    break;
-            }
+            //    case Lexer.TokenCategory.Punctuation:
+            //    case Lexer.TokenCategory.Operator:
+            //    case Lexer.TokenCategory.StringLiteral:
+            //    case Lexer.TokenCategory.CharLiteral:
+            //    case Lexer.TokenCategory.NumericLiteral:
+            //    default:
+            //        // Handle invalid token outside of a section
+            //        CurrentParserState = State.Invalid;
+            //        break;
+            //}
         }
 
         private void ParseStart(LexerTokens token)
@@ -498,21 +515,36 @@ namespace PumaToCpp
 
                     case Lexer.TokenCategory.Identifier:
                         // Handle identifier token
-                        // single statement follows
-                        currentParserState_ = State.Statement;
+                        if (Sections.Contains(token.TokenText))
+                        {
+                            // Handle section token
+                            var sectionNode = new SectionNode
+                            {
+                                TokenText = token.TokenText,
+                                Category = NodeCategory.Section
+                            };
+                            // Add the current node to the tree
+                            sectionNode.AddNodeToTree(CurrentRootNode);
+                            // Set the next state
+                            SetNextState(token.TokenText);
+                        }
+                        else
+                        {
+                            // Handle invalid token outside of a section
+                            // Not needed in the AST
+                        }
                         break;
 
                     case Lexer.TokenCategory.EndOfLine:
                         // Handle end of line token
                         // statement block follows
-                        currentParserState_ = State.StatementBlock;
                         break;
 
                     // Invalid token
                     case Lexer.TokenCategory.Delimiter:
                         // Handle delimiter token
                         // single statement follows
-                        currentParserState_ = State.Parameter;
+                        CurrentParserState = State.Parameter;
                         break;
 
                     case Lexer.TokenCategory.Whitespace:
@@ -527,7 +559,7 @@ namespace PumaToCpp
                     case Lexer.TokenCategory.NumericLiteral:
                     default:
                         // Handle invalid token outside of a section
-                        currentParserState_ = State.Invalid;
+                        CurrentParserState = State.Invalid;
                         break;
                 }
             }
@@ -561,7 +593,7 @@ namespace PumaToCpp
             {
                 case Lexer.TokenCategory.Identifier:
                     // Handle identifier token
-                    if (sections.Contains(token.TokenText))
+                    if (Sections.Contains(token.TokenText))
                     {
                         // Handle section token
                         var sectionNode = new SectionNode
@@ -570,7 +602,7 @@ namespace PumaToCpp
                             Category = NodeCategory.Section
                         };
                         // Add the current node to the tree
-                        sectionNode.AddNodeToTree(rootNode_);
+                        sectionNode.AddNodeToTree(CurrentRootNode);
                         // Set the next state
                         SetNextState(token.TokenText);
                     }

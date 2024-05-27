@@ -45,5 +45,32 @@ namespace PumaToCpp.Tests
             // Assert
             Assert.AreEqual("void main()\n{\n}\n", il);
         }
+        [TestMethod]
+        public void Codeget_all_sections()
+        {
+            // Setup
+            var lexer = new Lexer();
+            var parser = new Parser();
+            var codegen = new Codegen();
+
+            var source = @"
+                using
+                type
+                enum
+                properties
+                start
+                finalize
+                functions
+                end
+            ";
+
+            // call the method under test
+            List<LexerTokens> tokens = lexer.Tokenize(source);
+            var node = parser.Parse(tokens);
+            var il = codegen.Generate(node);
+
+            // Assert
+            Assert.AreEqual("void main()\n{\n}\n", il);
+        }
     }
 }

@@ -33,13 +33,13 @@ namespace PumaToCpp
                 StatementBlockBranch = [];
             }
 
-            public void AddNodeToTree(RootNode rootNode)
+            public void AddNodeToTree(RootNode baseNode)
             {
-                Debug.Assert(rootNode != null);
+                Debug.Assert(baseNode != null);
 
                 // Add the current node to the tree
-                rootNode.SectionBranch.Add(this);
-                this.PreviousNode = rootNode;
+                baseNode.SectionBranch.Add(this);
+                this.PreviousNode = baseNode;
             }
         }
     }

@@ -51,20 +51,104 @@ namespace PumaToCpp
                     {
                         case "start":
                             // generate the intermediate language source code for the section
+                            il += "// start section\n\n";
                             il += "void main()\n{\n";
-                            sectionTerminatingCode += "}\n";
-
-                            // put section code here
-
-
+                            sectionTerminatingCode += "}\n\n";
                             break;
+
                         case "end":
                             // generate the intermediate language source code for the section
                             // add the terminating code for the section
                             il += sectionTerminatingCode;
+                            // add the terminating code for the section
+                            il += "// end\n";
                             // reset the terminating code for the section
                             sectionTerminatingCode = "";
                             break;
+
+                        case "using":
+                            // generate the intermediate language source code for the section
+                            // add the terminating code for the section
+                            il += sectionTerminatingCode;
+                            il += "// using section\n\n";
+                            // reset the terminating code for the section
+                            sectionTerminatingCode = "";
+                            break;
+
+                        case "namespace":
+                            // generate the intermediate language source code for the section
+                            // add the terminating code for the section
+                            il += sectionTerminatingCode;
+                            il += "// namespace section\n\n";
+                            // reset the terminating code for the section
+                            sectionTerminatingCode = "";
+                            break;
+
+                        case "type":
+                            // generate the intermediate language source code for the section
+                            // add the terminating code for the section
+                            il += sectionTerminatingCode;
+                            il += "// type section\n\n";
+                            // reset the terminating code for the section
+                            sectionTerminatingCode = "";
+                            break;
+
+                        case "trait":
+                            // generate the intermediate language source code for the section
+                            // add the terminating code for the section
+                            il += sectionTerminatingCode;
+                            il += "// trait section\n\n";
+                            // reset the terminating code for the section
+                            sectionTerminatingCode = "";
+                            break;
+
+                        case "enums":
+                            // generate the intermediate language source code for the section
+                            // add the terminating code for the section
+                            il += sectionTerminatingCode;
+                            il += "// enums section\n\n";
+                            // reset the terminating code for the section
+                            sectionTerminatingCode = "";
+                            break;
+
+                        case "properties":
+                            // generate the intermediate language source code for the section
+                            // add the terminating code for the section
+                            il += sectionTerminatingCode;
+                            il += "// properties section\n\n";
+                            // reset the terminating code for the section
+                            sectionTerminatingCode = "";
+                            break;
+
+                        case "initialize":
+                            // generate the intermediate language source code for the section
+                            // add the terminating code for the section
+                            il += sectionTerminatingCode;
+                            il += "// initialize section\n\n";
+                            // reset the terminating code for the section
+                            sectionTerminatingCode = "";
+                            break;
+
+                        case "finalize":
+                            // generate the intermediate language source code for the section
+                            // add the terminating code for the section
+                            il += sectionTerminatingCode;
+                            il += "// finalize section\n\n";
+                            // reset the terminating code for the section
+                            sectionTerminatingCode = "";
+                            break;
+
+                        case "functions":
+                            // generate the intermediate language source code for the section
+                            // add the terminating code for the section
+                            il += sectionTerminatingCode;
+                            il += "// functions section\n\n";
+                            // reset the terminating code for the section
+                            sectionTerminatingCode = "";
+                            break;
+
+                        default:
+                            throw new System.NotImplementedException();
                     }
                 }
             }

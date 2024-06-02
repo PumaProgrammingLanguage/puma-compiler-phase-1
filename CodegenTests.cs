@@ -43,7 +43,112 @@ namespace PumaToCpp.Tests
             var il = codegen.Generate(node);
 
             // Assert
-            Assert.AreEqual("void main()\n{\n}\n", il);
+            Assert.AreEqual("// start section\n\n" +
+                "void main()\n{\n}\n\n" +
+                "// end\n", il);
+        }
+        [TestMethod]
+        public void Codeget_all_sections_1()
+        {
+            // Setup
+            var lexer = new Lexer();
+            var parser = new Parser();
+            var codegen = new Codegen();
+
+            var source = @"
+                using
+                namespace
+                enums
+                properties
+                start
+                finalize
+                functions
+                end
+            ";
+
+            // call the method under test
+            List<LexerTokens> tokens = lexer.Tokenize(source);
+            var node = parser.Parse(tokens);
+            var il = codegen.Generate(node);
+
+            // Assert
+            Assert.AreEqual("// using section\n\n" +
+                "// namespace section\n\n" +
+                "// enums section\n\n" +
+                "// properties section\n\n" +
+                "// start section\n\n" +
+                "void main()\n{\n}\n\n" +
+                "// finalize section\n\n" +
+                "// functions section\n\n" +
+                "// end\n", il);
+        }
+        [TestMethod]
+        public void Codeget_all_sections_2()
+        {
+            // Setup
+            var lexer = new Lexer();
+            var parser = new Parser();
+            var codegen = new Codegen();
+
+            var source = @"
+                using
+                trait
+                enums
+                properties
+                initialize
+                finalize
+                functions
+                end
+            ";
+
+            // call the method under test
+            List<LexerTokens> tokens = lexer.Tokenize(source);
+            var node = parser.Parse(tokens);
+            var il = codegen.Generate(node);
+
+            // Assert
+            Assert.AreEqual("// using section\n\n" +
+                "// trait section\n\n" +
+                "// enums section\n\n" +
+                "// properties section\n\n" +
+                "// initialize section\n\n" +
+                "// finalize section\n\n" +
+                "// functions section\n\n" +
+                "// end\n", il);
+        }
+        [TestMethod]
+        public void Codeget_all_sections_3()
+        {
+            // Setup
+            var lexer = new Lexer();
+            var parser = new Parser();
+            var codegen = new Codegen();
+
+            var source = @"
+                using
+                type
+                enums
+                properties
+                initialize
+                finalize
+                functions
+                end
+            ";
+
+            // call the method under test
+            List<LexerTokens> tokens = lexer.Tokenize(source);
+            var node = parser.Parse(tokens);
+            var il = codegen.Generate(node);
+
+            // Assert
+            Assert.AreEqual("// using section\n\n" +
+                "// type section\n\n" +
+                "// enums section\n\n" +
+                "// properties section\n\n" +
+                "// initialize section\n\n" +
+                "// finalize section\n\n" +
+                "// functions section\n\n" +
+                "// end\n", il);
         }
     }
 }

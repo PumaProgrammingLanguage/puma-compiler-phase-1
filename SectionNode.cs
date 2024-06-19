@@ -17,7 +17,7 @@
 
 using System.Diagnostics;
 
-namespace PumaToCpp
+namespace Puma
 {
     internal partial class Parser
     {

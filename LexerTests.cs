@@ -16,9 +16,9 @@
 //   limitations under the License.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using static PumaToCpp.Lexer;
+using static Puma.Lexer;
 
-namespace PumaToCpp
+namespace Puma
 {
     [TestClass]
     public class LexerTests

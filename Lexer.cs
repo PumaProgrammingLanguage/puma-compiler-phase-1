@@ -19,7 +19,7 @@ using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.Linq;
 
-namespace PumaToCpp
+namespace Puma
 {
     /// <summary>
     /// 

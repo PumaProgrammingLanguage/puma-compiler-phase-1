@@ -16,10 +16,10 @@
 //   limitations under the License.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using static PumaToCpp.Lexer;
-using static PumaToCpp.Parser;
+using static Puma.Lexer;
+using static Puma.Parser;
 
-namespace PumaToCpp.Tests
+namespace Puma.Tests
 {
     [TestClass]
     public class CodegenTests

@@ -43,8 +43,8 @@ namespace Puma.Tests
             var il = codegen.Generate(node);
 
             // Assert
-            Assert.AreEqual("// start section\n\n" +
-                "void main()\n{\n}\n\n" +
+            Assert.AreEqual("// start section\n" +
+                "int main(void)\n{\nreturn 0;\n}\n\n" +
                 "// end\n", il);
         }
         [TestMethod]
@@ -76,8 +76,8 @@ namespace Puma.Tests
                 "// namespace section\n\n" +
                 "// enums section\n\n" +
                 "// properties section\n\n" +
-                "// start section\n\n" +
-                "void main()\n{\n}\n\n" +
+                "// start section\n" +
+                "int main(void)\n{\nreturn 0;\n}\n\n" +
                 "// finalize section\n\n" +
                 "// functions section\n\n" +
                 "// end\n", il);

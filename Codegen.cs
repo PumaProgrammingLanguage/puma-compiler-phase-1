@@ -47,13 +47,15 @@ namespace Puma
             {
                 if (sectionNode.Category == NodeCategory.Section)
                 {
+                    int returnValue = 0;
                     switch (sectionNode.TokenText)
                     {
                         case "start":
                             // generate the intermediate language source code for the section
-                            il += "// start section\n\n";
-                            il += "void main()\n{\n";
-                            sectionTerminatingCode += "}\n\n";
+                            il += "// start section\n";
+                            il += "int main(void)\n{\n";
+                            // add the terminating code for this section
+                            sectionTerminatingCode += $"return {returnValue};\n}}\n\n";
                             break;
 
                         case "end":

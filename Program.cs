@@ -162,13 +162,22 @@ namespace Puma
                 return;
             }
 
+            if (outputFileName != "")
+            {
+                clangArguments = $"{cSourceFileName} -o {outputFileName} {clangArguments}"; // add the arguments after the source file name.
+            }
+            else
+            {
+                clangArguments = $"{cSourceFileName} {clangArguments}"; // add the arguments after the source file name.
+            }
+
             // Compile the generated C code using clang.
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "clang",
-                    Arguments = $"{cSourceFileName} -o {outputFileName} {clangArguments}", // add the arguments after the source file name.
+                    Arguments = clangArguments,
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                     CreateNoWindow = true

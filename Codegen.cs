@@ -52,10 +52,10 @@ namespace Puma
                     {
                         case "start":
                             // generate the intermediate language source code for the section
-                            il += "// start section\n";
+                            il += "\n// start section\n";
                             il += "int main(void)\n{\n";
                             // add the terminating code for this section
-                            sectionTerminatingCode += $"return {returnValue};\n}}\n\n";
+                            sectionTerminatingCode += $"return {returnValue};\n}}\n";
                             break;
 
                         case "end":
@@ -63,7 +63,7 @@ namespace Puma
                             // add the terminating code for the section
                             il += sectionTerminatingCode;
                             // add the terminating code for the section
-                            il += "// end\n";
+                            il += "\n// end\n";
                             // reset the terminating code for the section
                             sectionTerminatingCode = "";
                             break;
@@ -72,7 +72,7 @@ namespace Puma
                             // generate the intermediate language source code for the section
                             // add the terminating code for the section
                             il += sectionTerminatingCode;
-                            il += "// using section\n\n";
+                            il += "// using section\n";
                             // reset the terminating code for the section
                             sectionTerminatingCode = "";
                             break;
@@ -81,7 +81,7 @@ namespace Puma
                             // generate the intermediate language source code for the section
                             // add the terminating code for the section
                             il += sectionTerminatingCode;
-                            il += "// namespace section\n\n";
+                            il += "\n// namespace section\n";
                             // reset the terminating code for the section
                             sectionTerminatingCode = "";
                             break;
@@ -90,7 +90,7 @@ namespace Puma
                             // generate the intermediate language source code for the section
                             // add the terminating code for the section
                             il += sectionTerminatingCode;
-                            il += "// type section\n\n";
+                            il += "\n// type section\n";
                             // reset the terminating code for the section
                             sectionTerminatingCode = "";
                             break;
@@ -99,7 +99,7 @@ namespace Puma
                             // generate the intermediate language source code for the section
                             // add the terminating code for the section
                             il += sectionTerminatingCode;
-                            il += "// trait section\n\n";
+                            il += "\n// trait section\n";
                             // reset the terminating code for the section
                             sectionTerminatingCode = "";
                             break;
@@ -108,7 +108,7 @@ namespace Puma
                             // generate the intermediate language source code for the section
                             // add the terminating code for the section
                             il += sectionTerminatingCode;
-                            il += "// enums section\n\n";
+                            il += "\n// enums section\n";
                             // reset the terminating code for the section
                             sectionTerminatingCode = "";
                             break;
@@ -117,7 +117,7 @@ namespace Puma
                             // generate the intermediate language source code for the section
                             // add the terminating code for the section
                             il += sectionTerminatingCode;
-                            il += "// properties section\n\n";
+                            il += "\n// properties section\n";
                             // reset the terminating code for the section
                             sectionTerminatingCode = "";
                             break;
@@ -126,7 +126,7 @@ namespace Puma
                             // generate the intermediate language source code for the section
                             // add the terminating code for the section
                             il += sectionTerminatingCode;
-                            il += "// initialize section\n\n";
+                            il += "\n// initialize section\n";
                             // reset the terminating code for the section
                             sectionTerminatingCode = "";
                             break;
@@ -135,7 +135,7 @@ namespace Puma
                             // generate the intermediate language source code for the section
                             // add the terminating code for the section
                             il += sectionTerminatingCode;
-                            il += "// finalize section\n\n";
+                            il += "\n// finalize section\n";
                             // reset the terminating code for the section
                             sectionTerminatingCode = "";
                             break;
@@ -144,7 +144,7 @@ namespace Puma
                             // generate the intermediate language source code for the section
                             // add the terminating code for the section
                             il += sectionTerminatingCode;
-                            il += "// functions section\n\n";
+                            il += "\n// functions section\n";
                             // reset the terminating code for the section
                             sectionTerminatingCode = "";
                             break;

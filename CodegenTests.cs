@@ -19,7 +19,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static Puma.Lexer;
 using static Puma.Parser;
 
-namespace Puma.Tests
+namespace Puma
 {
     [TestClass]
     public class CodegenTests
@@ -43,9 +43,9 @@ namespace Puma.Tests
             var il = codegen.Generate(node);
 
             // Assert
-            Assert.AreEqual("// start section\n" +
-                "int main(void)\n{\nreturn 0;\n}\n\n" +
-                "// end\n", il);
+            Assert.AreEqual("\n// start section\n" +
+                "int main(void)\n{\nreturn 0;\n}\n" +
+                "\n// end\n", il);
         }
         [TestMethod]
         public void Codeget_all_sections_1()
@@ -72,15 +72,15 @@ namespace Puma.Tests
             var il = codegen.Generate(node);
 
             // Assert
-            Assert.AreEqual("// using section\n\n" +
-                "// namespace section\n\n" +
-                "// enums section\n\n" +
-                "// properties section\n\n" +
-                "// start section\n" +
-                "int main(void)\n{\nreturn 0;\n}\n\n" +
-                "// finalize section\n\n" +
-                "// functions section\n\n" +
-                "// end\n", il);
+            Assert.AreEqual("// using section\n" +
+                "\n// namespace section\n" +
+                "\n// enums section\n" +
+                "\n// properties section\n" +
+                "\n// start section\n" +
+                "int main(void)\n{\nreturn 0;\n}\n" +
+                "\n// finalize section\n" +
+                "\n// functions section\n" +
+                "\n// end\n", il);
         }
         [TestMethod]
         public void Codeget_all_sections_2()

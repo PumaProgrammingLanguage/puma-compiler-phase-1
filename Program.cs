@@ -24,106 +24,37 @@ namespace Puma
 {
     internal class Program
     {
-        //
-        private static void Main(string[] args)
+        // variables to store the command-line arguments.
+        protected static string ClangArguments = "";
+        protected static bool Verbose = false;
+        protected static bool Help = false;
+        protected static bool Version = false;
+        protected static bool EmitC = false;
+        protected static bool Output = false;
+        protected static string SourceFileName = "";
+        protected static string OutputFileName = "";
+        // variable to store the source code.
+        protected static string source = "";
+        
+        /// <summary>
+        /// // Main method of the Puma compiler.
+        /// </summary>
+        /// <param name="args"></param>
+        static void Main(string[] args)
         {
-            // Create instances of the lexer, parser, and codegen classes.
-            var lexer = new Lexer();
-            var parser = new Parser();
-            var codegen = new Codegen();
-            // Create variables to store the command-line arguments.
-            string clangArguments = "";
-            bool verbose = false;
-            bool help = false;
-            bool version = false;
-            bool emitC = false;
-            bool output = false;
-            string sourceFileName = "";
-            string outputFileName = "";
-            // Create a variable to store the source code.
-            string source;
-
             // Parse the command-line arguments.
-            foreach (var arg in args)
-            {
-                switch (arg)
-                {
-                    case "-v":
-                    case "--verbose":
-                        // Print verbose output.
-                        verbose = true;
-                        // output file name won't follow this flag.
-                        output = false;
-                        break;
+            ParseCommandArguments(args);
 
-                    case "-h":
-                    case "--help":
-                        // Print the help message. Return without compiling the source file.
-                        help = true;
-                        // output file name won't follow this flag.
-                        output = false;
-                        break;
+            var cSourceFileName = SourceFileName.Replace(".puma", ".c");
 
-                    case "-V":
-                    case "--version":
-                        // Print the version of the Puma compiler. Return without compiling the source file.
-                        version = true;
-                        // output file name won't follow this flag.
-                        output = false;
-                        break;
-
-                    case "-emit-c":
-                        // Emit the generated C code to a file. Return without compiling the source file.
-                        emitC = true;
-                        // output file name won't follow this flag.
-                        output = false;
-                        break;
-
-                    case "-o":
-                    case "--output":
-                        // The next argument after this flag is the output file name.
-                        output = true;
-                        break;
-
-                    default:
-                        if (output)
-                        {
-                            // If the output flag is set, the argument is the output file name.
-                            outputFileName = arg;
-                            output = false;
-                            break;
-                        }
-                        // If the argument ends with ".puma", it is the source file name.
-                        else if (arg.EndsWith(".puma"))
-                        {
-                            sourceFileName = arg;
-                        }
-                        else
-                        {
-                            // Otherwise, add the argument to the clang arguments string.
-                            clangArguments += " " + args;
-                        }
-                        break;
-                }
-            }
-
-            var cSourceFileName = sourceFileName.Replace(".puma", ".c");
-
-            if (help)
+            if (Help)
             {
                 // Print the help message and return.
-                Console.WriteLine("Usage: puma [options] file.puma");
-                Console.WriteLine("Options:");
-                Console.WriteLine("  -v, --verbose  Print verbose output.");
-                Console.WriteLine("  -h, --help     Print this help message and exit.");
-                Console.WriteLine("  -V, --version  Print the version of the Puma compiler and exit.");
-                Console.WriteLine("  -emit-c        Emit the generated C code to a file and exit.");
-                Console.WriteLine("  -o, --output   Specify the output file name.");
-                Console.WriteLine("  <clang flag>   other clang flags.");
+                PrintHelp();
                 return;
             }
 
-            if (version)
+            if (Version)
             {
                 var versionNumber = Assembly.GetExecutingAssembly().GetName().Version?.ToString();
                 Console.WriteLine($"Puma Compiler version {versionNumber}");
@@ -131,15 +62,20 @@ namespace Puma
             }
 
             // If the source file name is empty, print an error message and return.  Otherwise, read the source file.
-            if (sourceFileName != "")
+            if (SourceFileName != "")
             {
-                source = File.ReadAllText(sourceFileName);
+                source = File.ReadAllText(SourceFileName);
             }
             else
             {
                 Console.WriteLine("Error: No source file specified.");
                 return;
             }
+
+            // Create instances of the lexer, parser, and codegen classes.
+            var lexer = new Lexer();
+            var parser = new Parser();
+            var codegen = new Codegen();
 
             // Tokenize and parse the source string above.
             // Generate C code from the syntax tree generated by the parser.
@@ -148,36 +84,107 @@ namespace Puma
             var ast = parser.Parse(tokens);
             var cCode = codegen.Generate(ast);
 
-            if (verbose)
+            if (Verbose)
             {
                 // Print the C code to the console if the verbose flag is set.
                 Console.WriteLine("C language IR:");
                 Console.WriteLine(cCode);
             }
 
-            if (emitC)
+            if (EmitC)
             {
                 // Write the generated C code to a file with the same name as the source file, but with the .c extension.
                 File.WriteAllText(cSourceFileName, cCode);
                 return;
             }
 
-            if (outputFileName != "")
+            if (OutputFileName != "")
             {
-                clangArguments = $"{cSourceFileName} -o {outputFileName} {clangArguments}"; // add the arguments after the source file name.
+                ClangArguments = $"{cSourceFileName} -o {OutputFileName} {ClangArguments}"; // add the arguments after the source file name.
             }
             else
             {
-                clangArguments = $"{cSourceFileName} {clangArguments}"; // add the arguments after the source file name.
+                ClangArguments = $"{cSourceFileName} {ClangArguments}"; // add the arguments after the source file name.
             }
 
             // Compile the generated C code using clang.
+            BuildGeneratedCode();
+        }
+
+        private static void ParseCommandArguments(string[] args)
+        {
+            foreach (var arg in args)
+            {
+                switch (arg)
+                {
+                    case "-v":
+                    case "--verbose":
+                        // Print verbose output.
+                        Verbose = true;
+                        // output file name won't follow this flag.
+                        Output = false;
+                        break;
+
+                    case "-h":
+                    case "--help":
+                        // Print the help message. Return without compiling the source file.
+                        Help = true;
+                        // output file name won't follow this flag.
+                        Output = false;
+                        break;
+
+                    case "-V":
+                    case "--version":
+                        // Print the version of the Puma compiler. Return without compiling the source file.
+                        Version = true;
+                        // output file name won't follow this flag.
+                        Output = false;
+                        break;
+
+                    case "-emit-c":
+                        // Emit the generated C code to a file. Return without compiling the source file.
+                        EmitC = true;
+                        // output file name won't follow this flag.
+                        Output = false;
+                        break;
+
+                    case "-o":
+                    case "--output":
+                        // The next argument after this flag is the output file name.
+                        Output = true;
+                        break;
+
+                    default:
+                        if (Output)
+                        {
+                            // If the output flag is set, the argument that follows is the output file name.
+                            OutputFileName = arg;
+                            Output = false;
+                            break;
+                        }
+                        // If the argument ends with ".puma", it is the source file name.
+                        else if (arg.EndsWith(".puma"))
+                        {
+                            SourceFileName = arg;
+                        }
+                        else
+                        {
+                            // Otherwise, add the argument to the clang arguments string.
+                            ClangArguments += args + " ";
+                        }
+                        break;
+                }
+            }
+        }
+
+        private static void BuildGeneratedCode()
+        {
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "clang",
-                    Arguments = clangArguments,
+                    Arguments = ClangArguments,
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                     CreateNoWindow = true
@@ -187,9 +194,18 @@ namespace Puma
             // run the clang compiler by calling the WaitForExit method.
             process.Start();
             process.WaitForExit();
+        }
 
-            // run the clang compiler by a command line call.
-            
+        private static void PrintHelp()
+        {
+            Console.WriteLine("Usage: puma [options] file.puma");
+            Console.WriteLine("Options:");
+            Console.WriteLine("  -v, --verbose  Print verbose output.");
+            Console.WriteLine("  -h, --help     Print this help message and exit.");
+            Console.WriteLine("  -V, --version  Print the version of the Puma compiler and exit.");
+            Console.WriteLine("  -emit-c        Emit the generated C code to a file and exit.");
+            Console.WriteLine("  -o, --output   Specify the output file name.");
+            Console.WriteLine("  <clang flag>   other clang flags.");
         }
     }
 }

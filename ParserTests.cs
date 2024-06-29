@@ -76,8 +76,8 @@ namespace Puma
             var parser = new Parser();
 
             var source = @"
-                using
-                namespace
+                use
+                module
                 enums
                 properties
                 start
@@ -102,7 +102,7 @@ namespace Puma
             var sectionNode = node.SectionBranch.ElementAt<SectionNode>(0);
             Assert.AreNotEqual(null, sectionNode);
             Assert.AreNotEqual(null, sectionNode?.TokenText);
-            Assert.AreEqual("using", sectionNode?.TokenText);
+            Assert.AreEqual("use", sectionNode?.TokenText);
             Assert.AreEqual(NodeCategory.Section, sectionNode?.Category);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode?.TokenText);
@@ -110,7 +110,7 @@ namespace Puma
             sectionNode = node.SectionBranch.ElementAt<SectionNode>(1);
             Assert.AreNotEqual(null, sectionNode);
             Assert.AreNotEqual(null, sectionNode?.TokenText);
-            Assert.AreEqual("namespace", sectionNode?.TokenText);
+            Assert.AreEqual("module", sectionNode?.TokenText);
             Assert.AreEqual(NodeCategory.Section, sectionNode?.Category);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode?.TokenText);

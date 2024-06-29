@@ -31,10 +31,10 @@ namespace Puma
         {
             Invalid,
             File,
-            Using,
+            Import,
             Type,
             Trait,
-            Namespace,
+            Module,
             Enums,
             Properties,
             Initialize,
@@ -75,12 +75,12 @@ namespace Puma
         /// </summary>
         readonly string[] Sections =
         [
-            // using
-            "using",
+            // use
+            "use",
             // type
             "type",
             "trait",
-            "namespace",
+            "module",
             // enums
             "enums",
             // properties
@@ -102,10 +102,10 @@ namespace Puma
         public enum Section
         {
             File,
-            Using,
+            Import,
             Type,
             Trait,
-            Namespace,
+            Module,
             Enums,
             Properties,
             Initialize,
@@ -118,7 +118,7 @@ namespace Puma
 
         //readonly string[] Keywords =
         //[
-        //    "using",
+        //    "use",
         //    "as",
         //    "type",
         //    "trait",
@@ -139,7 +139,7 @@ namespace Puma
         //    "public",
         //    "private",
         //    "global",
-        //    "Internal",
+        //    "internal",
         //    "var",
         //    "const",
         //    "readonly",
@@ -178,7 +178,7 @@ namespace Puma
         //    "for",
         //    "in",
         //    "while",
-        //    "Loop",
+        //    "Repeat",
         //    "begin",
         //    "end",
         //    "break",
@@ -235,8 +235,8 @@ namespace Puma
                         ParseFile(token);
                         break;
 
-                    case State.Using:
-                        ParseUsing(token);
+                    case State.Import:
+                        ParseImport(token);
                         break;
 
                     case State.Type:
@@ -247,8 +247,8 @@ namespace Puma
                         ParseTrait(token);
                         break;
 
-                    case State.Namespace:
-                        ParseNamespace(token);
+                    case State.Module:
+                        ParseModule(token);
                         break;
 
                     case State.Enums:
@@ -366,7 +366,7 @@ namespace Puma
         /// </summary>
         /// <param name="token"></param>
         /// <exception cref="NotImplementedException"></exception>
-        private void ParseUsing(LexerTokens token)
+        private void ParseImport(LexerTokens token)
         {
             switch (token.Category)
             {
@@ -418,11 +418,11 @@ namespace Puma
         }
 
         /// <summary>
-        /// Parse the namespace section
+        /// Parse the module section
         /// </summary>
         /// <param name="token"></param>
         /// <exception cref="NotImplementedException"></exception>
-        private void ParseNamespace(LexerTokens token)
+        private void ParseModule(LexerTokens token)
         {
             switch (token.Category)
             {
@@ -959,9 +959,9 @@ namespace Puma
         {
             switch (tokenText)
             {
-                case "using":
-                    CurrentParserState = State.Using;
-                    CurrentSection = Section.Using;
+                case "use":
+                    CurrentParserState = State.Import;
+                    CurrentSection = Section.Import;
                     break;
 
                 case "type":
@@ -974,9 +974,9 @@ namespace Puma
                     CurrentSection = Section.Trait;
                     break;
 
-                case "namespace":
-                    CurrentParserState = State.Namespace;
-                    CurrentSection = Section.Namespace;
+                case "module":
+                    CurrentParserState = State.Module;
+                    CurrentSection = Section.Module;
                     break;
 
                 case "enums":

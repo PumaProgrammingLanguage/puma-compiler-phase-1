@@ -68,20 +68,20 @@ namespace Puma
                             sectionTerminatingCode = "";
                             break;
 
-                        case "using":
+                        case "use":
                             // generate the intermediate language source code for the section
                             // add the terminating code for the section
                             il += sectionTerminatingCode;
-                            il += "// using section\n";
+                            il += "// use section\n";
                             // reset the terminating code for the section
                             sectionTerminatingCode = "";
                             break;
 
-                        case "namespace":
+                        case "module":
                             // generate the intermediate language source code for the section
                             // add the terminating code for the section
                             il += sectionTerminatingCode;
-                            il += "\n// namespace section\n";
+                            il += "\n// module section\n";
                             // reset the terminating code for the section
                             sectionTerminatingCode = "";
                             break;

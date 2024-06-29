@@ -56,8 +56,8 @@ namespace Puma
             var codegen = new Codegen();
 
             var source = @"
-                using
-                namespace
+                use
+                module
                 enums
                 properties
                 start
@@ -72,8 +72,8 @@ namespace Puma
             var il = codegen.Generate(node);
 
             // Assert
-            Assert.AreEqual("// using section\n" +
-                "\n// namespace section\n" +
+            Assert.AreEqual("// use section\n" +
+                "\n// module section\n" +
                 "\n// enums section\n" +
                 "\n// properties section\n" +
                 "\n// start section\n" +
@@ -91,7 +91,7 @@ namespace Puma
             var codegen = new Codegen();
 
             var source = @"
-                using
+                use
                 trait
                 enums
                 properties
@@ -107,7 +107,7 @@ namespace Puma
             var il = codegen.Generate(node);
 
             // Assert
-            Assert.AreEqual("// using section\n\n" +
+            Assert.AreEqual("// use section\n\n" +
                 "// trait section\n\n" +
                 "// enums section\n\n" +
                 "// properties section\n\n" +
@@ -125,7 +125,7 @@ namespace Puma
             var codegen = new Codegen();
 
             var source = @"
-                using
+                use
                 type
                 enums
                 properties
@@ -141,7 +141,7 @@ namespace Puma
             var il = codegen.Generate(node);
 
             // Assert
-            Assert.AreEqual("// using section\n\n" +
+            Assert.AreEqual("// use section\n\n" +
                 "// type section\n\n" +
                 "// enums section\n\n" +
                 "// properties section\n\n" +

@@ -26,7 +26,7 @@ namespace Puma
     /// </summary>
     internal class Lexer
     {
-        readonly string[] _operators =
+        public readonly string[] Operators =
         [
             "<<=", ">>=", 
             "..",
@@ -74,7 +74,7 @@ namespace Puma
         /// </summary>
         public Lexer()
         {
-            foreach (string op in _operators)
+            foreach (string op in Operators)
             {
                 // check if the operator has three character
                 if (op.Length == 3)

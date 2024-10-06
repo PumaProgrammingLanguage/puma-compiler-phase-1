@@ -24,16 +24,9 @@ namespace Puma
         /// </summary>
         public class ASTNode
         {
-            public string? TokenText;
-            public NodeCategory Category;
-            public ASTNode? PreviousNode;
-
-            public ASTNode()
-            {
-                TokenText = null;
-                Category = NodeCategory.Unknown;
-                PreviousNode = null;
-            }
+            public string? TokenText = null;
+            public NodeCategory Category = NodeCategory.Unknown;
+            public ASTNode? PreviousNode = null;
         }
     }
 }

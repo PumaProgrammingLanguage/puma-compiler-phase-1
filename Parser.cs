@@ -31,7 +31,7 @@ namespace Puma
         {
             Invalid,
             File,
-            Import,
+            Use,
             Type,
             Trait,
             Module,
@@ -55,7 +55,7 @@ namespace Puma
         {
             Unknown,
             Invalid,
-            Root,
+            File,
             StringLiteral,
             CharLiteral,
             NumericLiteral,
@@ -102,7 +102,7 @@ namespace Puma
         public enum Section
         {
             File,
-            Import,
+            Use,
             Type,
             Trait,
             Module,
@@ -192,23 +192,24 @@ namespace Puma
         /// <summary>
         /// Position of the node in the tree in respect to the current node
         /// </summary>
-        enum Position
+        public enum Position
         {
-            None = 0,
-            LeftBranchNode,
-            RightBranchNode,
-            PreviousNode,       // bidirectional pointer list
+            LeftNode,       // left branch of the tree
+            RightNode,      // right branch of the tree
+            PreviousLeftNode,   // bidirectional pointer list
+            PreviousRightNode,   // bidirectional pointer list
         }
 
         /// <summary>
         /// fields of the parser
         /// </summary>
-        private readonly RootNode CurrentRootNode = new()
+        private readonly FileNode CurrentFileNode = new()
         {
-            TokenText = "root",
-            Category = NodeCategory.Root
+            TokenText = "",
+            Category = NodeCategory.File
         };
-        private ASTNode? LastNode = null;
+        private SectionNode CurrentSectionNode = new();
+        private StatementNode CurrentStatementNode = new();
         private State CurrentParserState = State.File;
         private Section CurrentSection = Section.File;
 
@@ -217,7 +218,6 @@ namespace Puma
         /// </summary>
         public Parser()
         {
-            LastNode = CurrentRootNode;
         }
 
         /// <summary>
@@ -225,7 +225,7 @@ namespace Puma
         /// </summary>
         /// <param name="tokens"></param>
         /// <returns></returns>
-        public RootNode Parse(List<LexerTokens> tokens)
+        public FileNode Parse(List<LexerTokens> tokens)
         {
             foreach (LexerTokens token in tokens)
             {
@@ -235,7 +235,7 @@ namespace Puma
                         ParseFile(token);
                         break;
 
-                    case State.Import:
+                    case State.Use:
                         ParseImport(token);
                         break;
 
@@ -275,7 +275,7 @@ namespace Puma
                         ParseFunctions(token);
                         break;
 
-                    case State.Function:
+                    case State.Function: //???
                         ParseFunction(token);
                         break;
 
@@ -302,7 +302,7 @@ namespace Puma
                 }
             }
 
-            return CurrentRootNode;
+            return CurrentFileNode;
         }
 
         /// <summary>
@@ -326,7 +326,9 @@ namespace Puma
                             Category = NodeCategory.Section
                         };
                         // Add the current node to the tree
-                        sectionNode.AddNodeToTree(CurrentRootNode);
+                        CurrentFileNode.AddNodeToTree(sectionNode);
+                        // update current section node
+                        CurrentSectionNode = sectionNode;
                         // Set the next state
                         SetNextState(token.TokenText);
                     }
@@ -386,7 +388,9 @@ namespace Puma
                             Category = NodeCategory.Section
                         };
                         // Add the current node to the tree
-                        sectionNode.AddNodeToTree(CurrentRootNode);
+                        CurrentFileNode.AddNodeToTree(sectionNode);
+                        // update current section node
+                        CurrentSectionNode = sectionNode;
                         // Set the next state
                         SetNextState(token.TokenText);
                     }
@@ -398,6 +402,8 @@ namespace Puma
                     break;
 
                 case Lexer.TokenCategory.EndOfLine:
+                    // Note: we do need to process end of line tokens as part of the language
+                    break;
                 case Lexer.TokenCategory.Whitespace:
                     // Handle whitespace token
                     // Not needed in the AST
@@ -442,7 +448,9 @@ namespace Puma
                             Category = NodeCategory.Section
                         };
                         // Add the current node to the tree
-                        sectionNode.AddNodeToTree(CurrentRootNode);
+                        CurrentFileNode.AddNodeToTree(sectionNode);
+                        // update current section node
+                        CurrentSectionNode = sectionNode;
                         // Set the next state
                         SetNextState(token.TokenText);
                     }
@@ -454,6 +462,8 @@ namespace Puma
                     break;
 
                 case Lexer.TokenCategory.EndOfLine:
+                    // Note: we do need to process end of line tokens as part of the language
+                    break;
                 case Lexer.TokenCategory.Whitespace:
                     // Handle whitespace token
                     // Not needed in the AST
@@ -498,7 +508,9 @@ namespace Puma
                             Category = NodeCategory.Section
                         };
                         // Add the current node to the tree
-                        sectionNode.AddNodeToTree(CurrentRootNode);
+                        CurrentFileNode.AddNodeToTree(sectionNode);
+                        // update current section node
+                        CurrentSectionNode = sectionNode;
                         // Set the next state
                         SetNextState(token.TokenText);
                     }
@@ -510,6 +522,8 @@ namespace Puma
                     break;
 
                 case Lexer.TokenCategory.EndOfLine:
+                    // Note: we do need to process end of line tokens as part of the language
+                    break;
                 case Lexer.TokenCategory.Whitespace:
                     // Handle whitespace token
                     // Not needed in the AST
@@ -554,7 +568,9 @@ namespace Puma
                             Category = NodeCategory.Section
                         };
                         // Add the current node to the tree
-                        sectionNode.AddNodeToTree(CurrentRootNode);
+                        CurrentFileNode.AddNodeToTree(sectionNode);
+                        // update current section node
+                        CurrentSectionNode = sectionNode;
                         // Set the next state
                         SetNextState(token.TokenText);
                     }
@@ -566,6 +582,8 @@ namespace Puma
                     break;
 
                 case Lexer.TokenCategory.EndOfLine:
+                    // Note: we do need to process end of line tokens as part of the language
+                    break;
                 case Lexer.TokenCategory.Whitespace:
                     // Handle whitespace token
                     // Not needed in the AST
@@ -610,7 +628,9 @@ namespace Puma
                             Category = NodeCategory.Section
                         };
                         // Add the current node to the tree
-                        sectionNode.AddNodeToTree(CurrentRootNode);
+                        CurrentFileNode.AddNodeToTree(sectionNode);
+                        // update current section node
+                        CurrentSectionNode = sectionNode;
                         // Set the next state
                         SetNextState(token.TokenText);
                     }
@@ -622,6 +642,8 @@ namespace Puma
                     break;
 
                 case Lexer.TokenCategory.EndOfLine:
+                    // Note: we do need to process end of line tokens as part of the language
+                    break;
                 case Lexer.TokenCategory.Whitespace:
                     // Handle whitespace token
                     // Not needed in the AST
@@ -666,18 +688,21 @@ namespace Puma
                             Category = NodeCategory.Section
                         };
                         // Add the current node to the tree
-                        sectionNode.AddNodeToTree(CurrentRootNode);
+                        CurrentFileNode.AddNodeToTree(sectionNode);
+                        // update current section node
+                        CurrentSectionNode = sectionNode;
                         // Set the next state
                         SetNextState(token.TokenText);
                     }
                     else
                     {
-                        // Handle invalid token outside of a section
-                        // Not needed in the AST
+                        // incomplete
                     }
                     break;
 
                 case Lexer.TokenCategory.EndOfLine:
+                    // Note: we do need to process end of line tokens as part of the language
+                    break;
                 case Lexer.TokenCategory.Whitespace:
                     // Handle whitespace token
                     // Not needed in the AST
@@ -711,29 +736,22 @@ namespace Puma
                     // Not needed in the AST
                     break;
 
-                case Lexer.TokenCategory.Identifier:
-                    // Handle identifier token
-                    if (Sections.Contains(token.TokenText))
+                case Lexer.TokenCategory.EndOfLine:
                     {
-                        // Handle section token
-                        var sectionNode = new SectionNode
+                        // This is the beginning of the statement block
+                        var blockNode = new StatementNode
                         {
-                            TokenText = token.TokenText,
-                            Category = NodeCategory.Section
+                            TokenText = "",
+                            Category = NodeCategory.StatementBlock
                         };
-                        // Add the current node to the tree
-                        sectionNode.AddNodeToTree(CurrentRootNode);
+                        // Add the current statement node to the tree
+                        CurrentSectionNode.AddNodeToTree(blockNode);
+                        // update current section node
+                        CurrentStatementNode = blockNode;
                         // Set the next state
-                        SetNextState(token.TokenText);
-                    }
-                    else
-                    {
-                        // Handle invalid token outside of a section
-                        // Not needed in the AST
+                        CurrentParserState = State.StatementBlock;
                     }
                     break;
-
-                case Lexer.TokenCategory.EndOfLine:
                 case Lexer.TokenCategory.Whitespace:
                     // Handle whitespace token
                     // Not needed in the AST
@@ -778,7 +796,9 @@ namespace Puma
                             Category = NodeCategory.Section
                         };
                         // Add the current node to the tree
-                        sectionNode.AddNodeToTree(CurrentRootNode);
+                        CurrentFileNode.AddNodeToTree(sectionNode);
+                        // update current section node
+                        CurrentSectionNode = sectionNode;
                         // Set the next state
                         SetNextState(token.TokenText);
                     }
@@ -790,6 +810,8 @@ namespace Puma
                     break;
 
                 case Lexer.TokenCategory.EndOfLine:
+                    // Note: we do need to process end of line tokens as part of the language
+                    break;
                 case Lexer.TokenCategory.Whitespace:
                     // Handle whitespace token
                     // Not needed in the AST
@@ -834,7 +856,9 @@ namespace Puma
                             Category = NodeCategory.Section
                         };
                         // Add the current node to the tree
-                        sectionNode.AddNodeToTree(CurrentRootNode);
+                        CurrentFileNode.AddNodeToTree(sectionNode);
+                        // update current section node
+                        CurrentSectionNode = sectionNode;
                         // Set the next state
                         SetNextState(token.TokenText);
                     }
@@ -846,6 +870,8 @@ namespace Puma
                     break;
 
                 case Lexer.TokenCategory.EndOfLine:
+                    // Note: we do need to process end of line tokens as part of the language
+                    break;
                 case Lexer.TokenCategory.Whitespace:
                     // Handle whitespace token
                     // Not needed in the AST
@@ -890,7 +916,9 @@ namespace Puma
                             Category = NodeCategory.Section
                         };
                         // Add the current node to the tree
-                        sectionNode.AddNodeToTree(CurrentRootNode);
+                        CurrentFileNode.AddNodeToTree(sectionNode);
+                        // update current section node
+                        CurrentSectionNode = sectionNode;
                         // Set the next state
                         SetNextState(token.TokenText);
                     }
@@ -902,6 +930,8 @@ namespace Puma
                     break;
 
                 case Lexer.TokenCategory.EndOfLine:
+                    // Note: we do need to process end of line tokens as part of the language
+                    break;
                 case Lexer.TokenCategory.Whitespace:
                     // Handle whitespace token
                     // Not needed in the AST
@@ -931,8 +961,10 @@ namespace Puma
             // search for comments, whitespace, and end of line tokens
             switch (token.Category)
             {
-                case Lexer.TokenCategory.Comment:
                 case Lexer.TokenCategory.EndOfLine:
+                    // Note: we do need to process end of line tokens as part of the language
+                    break;
+                case Lexer.TokenCategory.Comment:
                 case Lexer.TokenCategory.Whitespace:
                     // Not needed in the AST
                     break;
@@ -960,8 +992,8 @@ namespace Puma
             switch (tokenText)
             {
                 case "use":
-                    CurrentParserState = State.Import;
-                    CurrentSection = Section.Import;
+                    CurrentParserState = State.Use;
+                    CurrentSection = Section.Use;
                     break;
 
                 case "type":
@@ -1048,25 +1080,29 @@ namespace Puma
         /// <exception cref="NotImplementedException"></exception>
         private void ParseStatementBlock(LexerTokens token)
         {
-            throw new NotImplementedException();
-            //// if found end token
-            //if (token.Category == Lexer.TokenCategory.Identifier && token.TokenText == "end")
-            //{
-            //    // Handle end token
-            //    CurrentParserState = State.end;
-            //}
-            //// if found a section token
-            //else if (Sections.Contains(token.TokenText))
-            //{
-            //    // Set the next state
-            //    SetNextState(token.TokenText);
-            //}
-            //else
-            //{
-            //    // parse the statement
-            //    ParseStatement(token);
-            //}
-            //return;
+            // if found a section token
+            if (Sections.Contains(token.TokenText))
+            {
+                // Handle section token
+                var sectionNode = new SectionNode
+                {
+                    TokenText = token.TokenText,
+                    Category = NodeCategory.Section
+                };
+                // Add the current section node to the tree
+                CurrentFileNode.AddNodeToTree(sectionNode);
+                // update current section node
+                CurrentSectionNode = sectionNode;
+                // Set the next state
+                SetNextState(token.TokenText);
+            }
+            else
+            {
+                // parse the statement
+                ParseStatement(token);
+                CurrentParserState = State.Statement;
+            }
+            return;
         }
 
         /// <summary>
@@ -1076,7 +1112,110 @@ namespace Puma
         /// <exception cref="NotImplementedException"></exception>
         private void ParseStatement(LexerTokens token)
         {
-            throw new NotImplementedException();
+            switch (token.Category)
+            {
+                case Lexer.TokenCategory.Identifier:
+                    // Handle identifier token
+                    if (Sections.Contains(token.TokenText))
+                    {
+                        // Handle section token
+                        var sectionNode = new SectionNode
+                        {
+                            TokenText = token.TokenText,
+                            Category = NodeCategory.Section
+                        };
+                        // Add the current section node to the tree
+                        CurrentFileNode.AddNodeToTree(sectionNode);
+                        // update current section node
+                        CurrentSectionNode = sectionNode;
+                        // Set the next state
+                        SetNextState(token.TokenText);
+                    }
+                    else
+                    {
+                        // Handle non-section identifier token
+                        // This is a statement
+                        var identifierNode = new StatementNode
+                        {
+                            TokenText = token.TokenText,
+                            Category = NodeCategory.Identifier
+                        };
+
+                        if (CurrentStatementNode.Category == NodeCategory.StatementBlock)
+                        {                             
+                            // Handle identifier following a statement block
+                            // Add the current statement node to the tree
+                            CurrentStatementNode.AddNodeToTree(identifierNode, Position.LeftNode);
+                        }
+                        else
+                        {
+                            // Handle identifier following an identifier
+                            // Add the current statement node to the tree
+                            CurrentStatementNode.AddNodeToTree(identifierNode, Position.RightNode);
+                        }
+                        CurrentStatementNode = identifierNode;
+                        // don't change state
+                    }
+                    break;
+
+                case Lexer.TokenCategory.Operator:
+                    // Handle operator token
+                    var operatorNode = new StatementNode
+                    {
+                        TokenText = token.TokenText,
+                        Category = NodeCategory.Operator
+                    };
+
+                    if (CurrentStatementNode.Category == NodeCategory.Operator)
+                    {
+                        // Handle operator following an operator
+                        // Add the current statement node to the tree
+                        CurrentStatementNode.AddNodeToTree(operatorNode, Position.RightNode);
+                    }
+                    else
+                    {
+                        // Handle operator following an identifier
+                        // Add the current statement node to the tree
+                        CurrentStatementNode.AddNodeToTree(operatorNode, Position.PreviousLeftNode);
+                    }
+                    CurrentStatementNode = operatorNode;
+                    // don't change state
+                    break;
+
+                case Lexer.TokenCategory.NumericLiteral:
+                case Lexer.TokenCategory.StringLiteral:
+                case Lexer.TokenCategory.CharLiteral:
+                    // Handle literal token
+                    var literalNode = new StatementNode
+                    {
+                        TokenText = token.TokenText,
+                        Category = NodeCategory.NumericLiteral
+                    };
+                    // Add the current statement node to the tree
+                    CurrentStatementNode.AddNodeToTree(literalNode, Position.RightNode);
+                    // don't change state
+                    break;
+
+                case Lexer.TokenCategory.EndOfLine:
+                    {
+                        // This is the beginning of the statement block
+                        var blockNode = new StatementNode
+                        {
+                            TokenText = "",
+                            Category = NodeCategory.StatementBlock
+                        };
+                        // Add the current statement node to the tree
+                        CurrentSectionNode.AddNodeToTree(blockNode);
+                        // update current section node
+                        CurrentStatementNode = blockNode;
+                        // Set the next state
+                        CurrentParserState = State.StatementBlock;
+                    }
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
 }

@@ -72,15 +72,15 @@ namespace Puma
             var il = codegen.Generate(node);
 
             // Assert
-            Assert.AreEqual("// use section\n" +
-                "\n// module section\n" +
-                "\n// enums section\n" +
-                "\n// properties section\n" +
-                "\n// start section\n" +
-                "int main(void)\n{\nreturn 0;\n}\n" +
-                "\n// finalize section\n" +
-                "\n// functions section\n" +
-                "\n// end\n", il);
+            Assert.AreEqual("// use section\n\n" +
+                "// module section\n\n" +
+                "// enums section\n\n" +
+                "// properties section\n\n" +
+                "// start section\n" +
+                "int main(void)\n{\nreturn 0;\n}\n\n" +
+                "// finalize section\n\n" +
+                "// functions section\n\n" +
+                "// end\n", il);
         }
         [TestMethod]
         public void Codeget_all_sections_2()

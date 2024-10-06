@@ -15,6 +15,9 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using System.Diagnostics;
+using static Puma.Parser;
+
 namespace Puma
 {
     internal partial class Parser
@@ -22,13 +25,18 @@ namespace Puma
         /// <summary>
         /// 
         /// </summary>
-        public class RootNode : ASTNode
+        public class FileNode : ASTNode
         {
-            public List<SectionNode> SectionBranch;
+            public List<SectionNode> Sections = [];
 
-            public RootNode()
+            public void AddNodeToTree(SectionNode sectionNode)
             {
-                SectionBranch = [];
+                Debug.Assert(sectionNode != null);
+
+                // Set the previous node
+                sectionNode.PreviousNode = this;
+                // Add the current node to the tree
+                Sections.Add(sectionNode);
             }
         }
     }

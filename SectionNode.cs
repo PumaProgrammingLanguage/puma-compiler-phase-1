@@ -26,20 +26,33 @@ namespace Puma
         /// </summary>
         public class SectionNode : ASTNode
         {
-            public List<ASTNode> StatementBlockBranch;
+            public StatementNode? StatementBlock = null;
 
-            public SectionNode()
+            public void AddNodeToTree(StatementNode currentBlockNode)
             {
-                StatementBlockBranch = [];
-            }
+                Debug.Assert(currentBlockNode != null);
 
-            public void AddNodeToTree(RootNode baseNode)
-            {
-                Debug.Assert(baseNode != null);
-
-                // Add the current node to the tree
-                baseNode.SectionBranch.Add(this);
-                this.PreviousNode = baseNode;
+                // check if first statement in section
+                if (StatementBlock == null)
+                {
+                    // Set the previous node
+                    currentBlockNode.PreviousNode = this;
+                    // Add the current node to the tree
+                    StatementBlock = currentBlockNode;
+                }
+                else
+                {
+                    // find the last statement in the block
+                    StatementNode lastStatement = StatementBlock;
+                    while (lastStatement.RightNode != null)
+                    {
+                        lastStatement = lastStatement.RightNode;
+                    }
+                    // Set the previous node
+                    currentBlockNode.PreviousNode = lastStatement;
+                    // Add the current node to the tree
+                    lastStatement.RightNode = currentBlockNode;
+                }
             }
         }
     }

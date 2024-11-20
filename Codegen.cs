@@ -37,13 +37,13 @@ namespace Puma
         /// <param name="ast"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        internal string Generate(RootNode ast)
+        internal string Generate(FileNode fileNode)
         {
             // intermediate language source code
             string il = "";
             string sectionTerminatingCode = "";
 
-            foreach (var sectionNode in ast.SectionBranch)
+            foreach (var sectionNode in fileNode.Sections)
             {
                 if (sectionNode.Category == NodeCategory.Section)
                 {

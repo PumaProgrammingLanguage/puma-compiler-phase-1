@@ -27,16 +27,31 @@ namespace Puma
         /// </summary>
         public class FileNode : ASTNode
         {
-            public List<SectionNode> Sections = [];
+            public SectionNode? FirstNode = null;
 
             public void AddNodeToTree(SectionNode sectionNode)
             {
                 Debug.Assert(sectionNode != null);
 
-                // Set the previous node
-                sectionNode.PreviousNode = this;
                 // Add the current node to the tree
-                Sections.Add(sectionNode);
+                if (FirstNode == null)
+                {
+                    FirstNode = sectionNode;
+                    // Set the previous node
+                    sectionNode.PreviousNode = this;
+                }
+                else
+                {
+                    // find the last section in the tree
+                    SectionNode lastSection = FirstNode;
+                    while (lastSection.NextSection != null)
+                    {
+                        lastSection = lastSection.NextSection;
+                    }
+                    lastSection.NextSection = sectionNode;
+                    // Set the previous node
+                    sectionNode.PreviousNode = lastSection;
+                }
             }
         }
     }

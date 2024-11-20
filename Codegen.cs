@@ -43,7 +43,9 @@ namespace Puma
             string il = "";
             string sectionTerminatingCode = "";
 
-            foreach (var sectionNode in fileNode.Sections)
+            // get the next section node
+            SectionNode sectionNode = fileNode.FirstNode;
+            do
             {
                 if (sectionNode.Category == NodeCategory.Section)
                 {
@@ -63,7 +65,7 @@ namespace Puma
                             // add the terminating code for the section
                             il += sectionTerminatingCode;
                             // add the terminating code for the section
-                            il += "\n// end\n";
+                            il += "\n// end section\n";
                             // reset the terminating code for the section
                             sectionTerminatingCode = "";
                             break;
@@ -153,7 +155,9 @@ namespace Puma
                             throw new System.NotImplementedException();
                     }
                 }
-            }
+
+                sectionNode = sectionNode.NextSection;
+            } while (sectionNode != null);
 
             // return the intermediate language source code
             return il;

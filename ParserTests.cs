@@ -183,7 +183,6 @@ namespace Puma
             var parser = new Parser();
 
             var source = @"
-
                 start
                     a = 1
                     b = 2

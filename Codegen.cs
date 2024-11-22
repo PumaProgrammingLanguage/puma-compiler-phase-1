@@ -40,11 +40,13 @@ namespace Puma
         internal string Generate(FileNode fileNode)
         {
             // intermediate language source code
-            string il = "";
+            // add the header file stdint.h because specific size integers are built-in types in Puma
+            string il = "#include \"stdint.h\"\n";
             string sectionTerminatingCode = "";
 
             // get the next section node
             SectionNode sectionNode = fileNode.FirstNode;
+
             do
             {
                 if (sectionNode.Category == NodeCategory.Section)
@@ -74,7 +76,7 @@ namespace Puma
                             // generate the intermediate language source code for the section
                             // add the terminating code for the section
                             il += sectionTerminatingCode;
-                            il += "// use section\n";
+                            il += "\n// use section\n";
                             // reset the terminating code for the section
                             sectionTerminatingCode = "";
                             break;

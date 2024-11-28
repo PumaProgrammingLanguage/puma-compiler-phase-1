@@ -15,6 +15,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using System.Text.Json.Serialization;
 using static Puma.Parser;
 
 namespace Puma
@@ -24,6 +25,12 @@ namespace Puma
     /// </summary>
     internal class Codegen
     {
+
+        private bool IncludeStdInt = false;
+        private bool IncludeStdBool = false;
+        private bool IncludeStdio = false;
+        private bool IncludeStdLib = false;
+
         /// <summary>
         /// 
         /// </summary>
@@ -41,8 +48,8 @@ namespace Puma
         {
             // intermediate language source code
             // add the header file stdint.h because specific size integers are built-in types in Puma
-            string il = "#include \"stdint.h\"\n";
-            string sectionTerminatingCode = "";
+            var il = "";
+            var sectionTerminatingCode = "";
 
             // get the next section node
             SectionNode sectionNode = fileNode.FirstNode;
@@ -161,8 +168,26 @@ namespace Puma
                 sectionNode = sectionNode.NextSection;
             } while (sectionNode != null);
 
+            var ilIncudes = "";
+            // add any #includes as needed
+            if (IncludeStdInt)
+            {
+                ilIncudes += "#include \"stdint.h\"\n";
+            }
+            if (IncludeStdBool)
+            {
+                ilIncudes += "#include \"stdbool.h\"\n";
+            }
+            if (IncludeStdio)
+            {
+                ilIncudes += "#include \"stdio.h\"\n";
+            }
+            if (IncludeStdLib)
+            {
+                ilIncudes += "#include \"stdlib.h\"\n";
+            }
             // return the intermediate language source code
-            return il;
+            return ilIncudes + il;
         }
     }
 }

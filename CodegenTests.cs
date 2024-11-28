@@ -49,8 +49,7 @@ namespace Puma
             var il = codegen.Generate(node);
 
             // Assert
-            Assert.AreEqual("#include \"stdint.h\"\n" +
-                "\n// use section\n" +
+            Assert.AreEqual("\n// use section\n" +
                 "\n// module section\n" +
                 "\n// enums section\n" +
                 "\n// properties section\n" +
@@ -85,8 +84,7 @@ namespace Puma
             var il = codegen.Generate(node);
 
             // Assert
-            Assert.AreEqual("#include \"stdint.h\"\n" +
-                "\n// use section\n" +
+            Assert.AreEqual("\n// use section\n" +
                 "\n// trait section\n" +
                 "\n// enums section\n" +
                 "\n// properties section\n" +
@@ -120,8 +118,7 @@ namespace Puma
             var il = codegen.Generate(node);
 
             // Assert
-            Assert.AreEqual("#include \"stdint.h\"\n" +
-                "\n// use section\n" +
+            Assert.AreEqual("\n// use section\n" +
                 "\n// type section\n" +
                 "\n// enums section\n" +
                 "\n// properties section\n" +
@@ -149,8 +146,7 @@ namespace Puma
             var il = codegen.Generate(node);
 
             // Assert
-            Assert.AreEqual("#include \"stdint.h\"\n" +
-                "\n// start section\n" +
+            Assert.AreEqual("\n// start section\n" +
                 "int main(void)\n{\nreturn 0;\n}\n" +
                 "\n// end section\n", il);
         }

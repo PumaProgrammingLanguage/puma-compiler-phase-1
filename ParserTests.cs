@@ -49,9 +49,9 @@ namespace Puma
             Assert.AreEqual("", node.TokenText);
             Assert.AreEqual(NodeCategory.File, node.Category);
             Assert.AreEqual(null, node.PreviousNode);
-            Assert.AreNotEqual(null, node.Sections);
+            Assert.AreNotEqual(null, node.FirstNode);
 
-            var sectionNode = node.Sections.ElementAt<SectionNode>(0);
+            var sectionNode = node.FirstNode;
             Assert.AreNotEqual(null, sectionNode);
             Assert.AreNotEqual(null, sectionNode?.TokenText);
             Assert.AreEqual("start", sectionNode?.TokenText);
@@ -60,14 +60,14 @@ namespace Puma
             Assert.AreNotEqual(null, sectionNode?.PreviousNode?.TokenText);
             Assert.AreEqual("", sectionNode?.PreviousNode?.TokenText);
 
-            sectionNode = node.Sections.ElementAt<SectionNode>(1);
+            sectionNode = sectionNode.NextSection;
             Assert.AreNotEqual(null, sectionNode);
             Assert.AreNotEqual(null, sectionNode?.TokenText);
             Assert.AreEqual("end", sectionNode?.TokenText);
             Assert.AreEqual(NodeCategory.Section, sectionNode?.Category);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode?.TokenText);
-            Assert.AreEqual("", sectionNode?.PreviousNode?.TokenText);
+            Assert.AreEqual("start", sectionNode?.PreviousNode?.TokenText);
         }
 
         [TestMethod]
@@ -100,9 +100,9 @@ namespace Puma
             Assert.AreEqual("", node.TokenText);
             Assert.AreEqual(NodeCategory.File, node.Category);
             Assert.AreEqual(null, node.PreviousNode);
-            Assert.AreNotEqual(null, node.Sections);
+            Assert.AreNotEqual(null, node.FirstNode);
 
-            var sectionNode = node.Sections.ElementAt<SectionNode>(0);
+            var sectionNode = node.FirstNode;
             Assert.AreNotEqual(null, sectionNode);
             Assert.AreNotEqual(null, sectionNode?.TokenText);
             Assert.AreEqual("use", sectionNode?.TokenText);
@@ -111,68 +111,68 @@ namespace Puma
             Assert.AreNotEqual(null, sectionNode?.PreviousNode?.TokenText);
             Assert.AreEqual("", sectionNode?.PreviousNode?.TokenText);
 
-            sectionNode = node.Sections.ElementAt<SectionNode>(1);
+            sectionNode = sectionNode.NextSection;
             Assert.AreNotEqual(null, sectionNode);
             Assert.AreNotEqual(null, sectionNode?.TokenText);
             Assert.AreEqual("module", sectionNode?.TokenText);
             Assert.AreEqual(NodeCategory.Section, sectionNode?.Category);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode?.TokenText);
-            Assert.AreEqual("", sectionNode?.PreviousNode?.TokenText);
+            Assert.AreEqual("use", sectionNode?.PreviousNode?.TokenText);
 
-            sectionNode = node.Sections.ElementAt<SectionNode>(2);
+            sectionNode = sectionNode.NextSection;
             Assert.AreNotEqual(null, sectionNode);
             Assert.AreNotEqual(null, sectionNode?.TokenText);
             Assert.AreEqual("enums", sectionNode?.TokenText);
             Assert.AreEqual(NodeCategory.Section, sectionNode?.Category);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode?.TokenText);
-            Assert.AreEqual("", sectionNode?.PreviousNode?.TokenText);
+            Assert.AreEqual("module", sectionNode?.PreviousNode?.TokenText);
 
-            sectionNode = node.Sections.ElementAt<SectionNode>(3);
+            sectionNode = sectionNode.NextSection;
             Assert.AreNotEqual(null, sectionNode);
             Assert.AreNotEqual(null, sectionNode?.TokenText);
             Assert.AreEqual("properties", sectionNode?.TokenText);
             Assert.AreEqual(NodeCategory.Section, sectionNode?.Category);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode?.TokenText);
-            Assert.AreEqual("", sectionNode?.PreviousNode?.TokenText);
+            Assert.AreEqual("enums", sectionNode?.PreviousNode?.TokenText);
 
-            sectionNode = node.Sections.ElementAt<SectionNode>(4);
+            sectionNode = sectionNode.NextSection;
             Assert.AreNotEqual(null, sectionNode);
             Assert.AreNotEqual(null, sectionNode?.TokenText);
             Assert.AreEqual("start", sectionNode?.TokenText);
             Assert.AreEqual(NodeCategory.Section, sectionNode?.Category);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode?.TokenText);
-            Assert.AreEqual("", sectionNode?.PreviousNode?.TokenText);
+            Assert.AreEqual("properties", sectionNode?.PreviousNode?.TokenText);
 
-            sectionNode = node.Sections.ElementAt<SectionNode>(5);
+            sectionNode = sectionNode.NextSection;
             Assert.AreNotEqual(null, sectionNode);
             Assert.AreNotEqual(null, sectionNode?.TokenText);
             Assert.AreEqual("finalize", sectionNode?.TokenText);
             Assert.AreEqual(NodeCategory.Section, sectionNode?.Category);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode?.TokenText);
-            Assert.AreEqual("", sectionNode?.PreviousNode?.TokenText);
+            Assert.AreEqual("start", sectionNode?.PreviousNode?.TokenText);
 
-            sectionNode = node.Sections.ElementAt<SectionNode>(6);
+            sectionNode = sectionNode.NextSection;
             Assert.AreNotEqual(null, sectionNode);
             Assert.AreNotEqual(null, sectionNode?.TokenText);
             Assert.AreEqual("functions", sectionNode?.TokenText);
             Assert.AreEqual(NodeCategory.Section, sectionNode?.Category);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode?.TokenText);
-            Assert.AreEqual("", sectionNode?.PreviousNode?.TokenText);
+            Assert.AreEqual("finalize", sectionNode?.PreviousNode?.TokenText);
 
-            sectionNode = node.Sections.ElementAt<SectionNode>(7);
+            sectionNode = sectionNode.NextSection;
             Assert.AreNotEqual(null, sectionNode);
             Assert.AreNotEqual(null, sectionNode?.TokenText);
             Assert.AreEqual("end", sectionNode?.TokenText);
             Assert.AreEqual(NodeCategory.Section, sectionNode?.Category);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode?.TokenText);
-            Assert.AreEqual("", sectionNode?.PreviousNode?.TokenText);
+            Assert.AreEqual("functions", sectionNode?.PreviousNode?.TokenText);
         }
 
         [TestMethod]
@@ -200,9 +200,9 @@ namespace Puma
             Assert.AreEqual("", node.TokenText);
             Assert.AreEqual(NodeCategory.File, node.Category);
             Assert.AreEqual(null, node.PreviousNode);
-            Assert.AreNotEqual(null, node.Sections);
+            Assert.AreNotEqual(null, node.FirstNode);
 
-            var sectionNode = node.Sections.ElementAt<SectionNode>(0);
+            var sectionNode = node.FirstNode;
             Assert.AreNotEqual(null, sectionNode);
             Assert.AreNotEqual(null, sectionNode?.TokenText);
             Assert.AreEqual("start", sectionNode?.TokenText);
@@ -230,6 +230,26 @@ namespace Puma
             Assert.AreEqual("", statementNode?.PreviousNode?.TokenText);
             Assert.AreEqual(NodeCategory.StatementBlock, statementNode?.PreviousNode?.Category);
 
+            var statementNodeLeft = statementNode?.LeftNode;
+            Assert.AreNotEqual(null, statementNodeLeft);
+            Assert.AreNotEqual(null, statementNodeLeft?.TokenText);
+            Assert.AreEqual("a", statementNodeLeft?.TokenText);
+            Assert.AreEqual(NodeCategory.Identifier, statementNodeLeft?.Category);
+            Assert.AreNotEqual(null, statementNodeLeft?.PreviousNode);
+            Assert.AreNotEqual(null, statementNodeLeft?.PreviousNode?.TokenText);
+            Assert.AreEqual("=", statementNodeLeft?.PreviousNode?.TokenText);
+            Assert.AreEqual(NodeCategory.Operator, statementNodeLeft?.PreviousNode?.Category);
+
+            var statementNodeRight = statementNode?.RightNode;
+            Assert.AreNotEqual(null, statementNodeRight);
+            Assert.AreNotEqual(null, statementNodeRight?.TokenText);
+            Assert.AreEqual("1", statementNodeRight?.TokenText);
+            Assert.AreEqual(NodeCategory.NumericLiteral, statementNodeRight?.Category);
+            Assert.AreNotEqual(null, statementNodeRight?.PreviousNode);
+            Assert.AreNotEqual(null, statementNodeRight?.PreviousNode?.TokenText);
+            Assert.AreEqual("=", statementNodeRight?.PreviousNode?.TokenText);
+            Assert.AreEqual(NodeCategory.Operator, statementNodeRight?.PreviousNode?.Category);
+
             statementBlockNode = statementBlockNode?.RightNode;
             Assert.AreNotEqual(null, statementBlockNode);
             Assert.AreNotEqual(null, statementBlockNode?.TokenText);
@@ -250,14 +270,34 @@ namespace Puma
             Assert.AreEqual("", statementNode?.PreviousNode?.TokenText);
             Assert.AreEqual(NodeCategory.StatementBlock, statementNode?.PreviousNode?.Category);
 
-            sectionNode = node.Sections.ElementAt<SectionNode>(1);
+            statementNodeLeft = statementNode?.LeftNode;
+            Assert.AreNotEqual(null, statementNodeLeft);
+            Assert.AreNotEqual(null, statementNodeLeft?.TokenText);
+            Assert.AreEqual("b", statementNodeLeft?.TokenText);
+            Assert.AreEqual(NodeCategory.Identifier, statementNodeLeft?.Category);
+            Assert.AreNotEqual(null, statementNodeLeft?.PreviousNode);
+            Assert.AreNotEqual(null, statementNodeLeft?.PreviousNode?.TokenText);
+            Assert.AreEqual("=", statementNodeLeft?.PreviousNode?.TokenText);
+            Assert.AreEqual(NodeCategory.Operator, statementNodeLeft?.PreviousNode?.Category);
+
+            statementNodeRight = statementNode?.RightNode;
+            Assert.AreNotEqual(null, statementNodeRight);
+            Assert.AreNotEqual(null, statementNodeRight?.TokenText);
+            Assert.AreEqual("2", statementNodeRight?.TokenText);
+            Assert.AreEqual(NodeCategory.NumericLiteral, statementNodeRight?.Category);
+            Assert.AreNotEqual(null, statementNodeRight?.PreviousNode);
+            Assert.AreNotEqual(null, statementNodeRight?.PreviousNode?.TokenText);
+            Assert.AreEqual("=", statementNodeRight?.PreviousNode?.TokenText);
+            Assert.AreEqual(NodeCategory.Operator, statementNodeRight?.PreviousNode?.Category);
+
+            sectionNode = sectionNode?.NextSection;
             Assert.AreNotEqual(null, sectionNode);
-            Assert.AreNotEqual(null, sectionNode?.TokenText);
             Assert.AreEqual("end", sectionNode?.TokenText);
             Assert.AreEqual(NodeCategory.Section, sectionNode?.Category);
             Assert.AreNotEqual(null, sectionNode?.PreviousNode);
-            Assert.AreNotEqual(null, sectionNode?.PreviousNode?.TokenText);
-            Assert.AreEqual(NodeCategory.File, sectionNode?.PreviousNode?.Category);
+            Assert.AreEqual("start", sectionNode?.PreviousNode?.TokenText);
+            Assert.AreEqual(NodeCategory.Section, sectionNode?.PreviousNode?.Category);
+
         }
     }
 }

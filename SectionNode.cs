@@ -27,6 +27,7 @@ namespace Puma
         public class SectionNode : ASTNode
         {
             public StatementNode? StatementBlock = null;
+            public SectionNode? NextSection = null;
 
             public void AddNodeToTree(StatementNode currentBlockNode)
             {

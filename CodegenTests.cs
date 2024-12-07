@@ -45,7 +45,7 @@ namespace Puma
             // Assert
             Assert.AreEqual("\n// start section\n" +
                 "int main(void)\n{\nreturn 0;\n}\n" +
-                "\n// end\n", il);
+                "\n// end section\n", il);
         }
         [TestMethod]
         public void Codeget_all_sections_1()
@@ -80,7 +80,7 @@ namespace Puma
                 "int main(void)\n{\nreturn 0;\n}\n\n" +
                 "// finalize section\n\n" +
                 "// functions section\n\n" +
-                "// end\n", il);
+                "// end section\n", il);
         }
         [TestMethod]
         public void Codeget_all_sections_2()
@@ -114,7 +114,7 @@ namespace Puma
                 "// initialize section\n\n" +
                 "// finalize section\n\n" +
                 "// functions section\n\n" +
-                "// end\n", il);
+                "// end section\n", il);
         }
         [TestMethod]
         public void Codeget_all_sections_3()
@@ -148,7 +148,7 @@ namespace Puma
                 "// initialize section\n\n" +
                 "// finalize section\n\n" +
                 "// functions section\n\n" +
-                "// end\n", il);
+                "// end section\n", il);
         }
     }
 }

@@ -54,7 +54,7 @@ namespace Puma
             // get the next section node
             SectionNode sectionNode = fileNode.FirstNode;
 
-            do
+            while (sectionNode != null)
             {
                 if (sectionNode.Category == NodeCategory.Section)
                 {
@@ -65,6 +65,8 @@ namespace Puma
                             // generate the intermediate language source code for the section
                             il += "\n// start section\n";
                             il += "int main(void)\n{\n";
+                            // process the statement block within start
+                            ProcessStatemendBlock(sectionNode.StatementBlock);
                             // add the terminating code for this section
                             sectionTerminatingCode += $"return {returnValue};\n}}\n";
                             break;
@@ -166,7 +168,7 @@ namespace Puma
                 }
 
                 sectionNode = sectionNode.NextSection;
-            } while (sectionNode != null);
+            }
 
             var ilIncudes = "";
             // add any #includes as needed
@@ -188,6 +190,21 @@ namespace Puma
             }
             // return the intermediate language source code
             return ilIncudes + il;
+        }
+
+        private static StatementNode ProcessStatemendBlock(StatementNode? statementBlock)
+        {
+            StatementNode? currentStatementNode = statementBlock;
+            while (currentStatementNode != null)
+            {
+                ProcessStatement(currentStatementNode.LeftNode);
+                currentStatementNode = ProcessStatemendBlock(statementBlock.RightNode);
+            }
+        }
+
+        private static StatementNode ProcessStatement(StatementNode? leftNode)
+        {
+            throw new NotImplementedException();
         }
     }
 }

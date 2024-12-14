@@ -45,7 +45,7 @@ namespace Puma
             // Parse the command-line arguments.
             ParseCommandArguments(args);
 
-            var cSourceFileName = SourceFileName.Replace(".puma", ".c");
+            var cppSourceFileName = SourceFileName.Replace(".puma", ".cpp");
 
             if (Help)
             {
@@ -94,17 +94,17 @@ namespace Puma
             if (EmitC)
             {
                 // Write the generated C code to a file with the same name as the source file, but with the .c extension.
-                File.WriteAllText(cSourceFileName, cCode);
+                File.WriteAllText(cppSourceFileName, cCode);
                 return;
             }
 
             if (OutputFileName != "")
             {
-                ClangArguments = $"{cSourceFileName} -o {OutputFileName} {ClangArguments}"; // add the arguments after the source file name.
+                ClangArguments = $"{cppSourceFileName} -o {OutputFileName} {ClangArguments}"; // add the arguments after the source file name.
             }
             else
             {
-                ClangArguments = $"{cSourceFileName} {ClangArguments}"; // add the arguments after the source file name.
+                ClangArguments = $"{cppSourceFileName} {ClangArguments}"; // add the arguments after the source file name.
             }
 
             // Compile the generated C code using clang.
@@ -183,7 +183,7 @@ namespace Puma
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = "clang",
+                    FileName = "clang++",
                     Arguments = ClangArguments,
                     RedirectStandardOutput = true,
                     UseShellExecute = false,

@@ -1,1 +1,1 @@
-This is a Puma to CPP translator.  This translator will be used as a proof of concept project for the Puma Programming Language.  The goal is to write an LLVM compiler for the Puma Programming Language.
+This is a Puma to CPP translator.  This translator will be used as a proof of concept project for the Puma Programming Language.  The goal is to write an LLVM compiler for the Puma Programming Language. Puma is a new programming language that is organized, maintainable, safe, efficient, reliable and readable.

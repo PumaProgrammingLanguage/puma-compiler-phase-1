@@ -7,7 +7,8 @@ def create_index_file(directory):
         os.remove(index_file_path)
 
     with open(index_file_path, 'w') as f:
-        f.write(f"<html><body><h1>Index of {directory}</h1><ul>")
+        current_dirctory = os.path.basename(directory)
+        f.write(f"<html><body><h1>Index of {current_dirctory}</h1><ul>")
         for item in os.listdir(directory):
             item_path = os.path.join(directory, item)
             if os.path.isdir(item_path):

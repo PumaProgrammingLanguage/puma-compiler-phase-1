@@ -1,9 +1,9 @@
 ﻿The Puma Programming Language Project
 
-The goal of this project is to write an LLVM compiler for the Puma Programming Language. Puma is a new programming language that is organized, maintainable, safe, efficient, reliable and readable.
+The goal of this project is to write an LLVM compiler front-end for the Puma Programming Language. Puma is a new programming language that is safe, organized, maintainable, efficient, reliable and readable.
 
 Goals
-The current goal of this project is to write a compiler for the Puma Programming Language in three phases.
+The current goal of this project is to write a compiler front-end for the Puma Programming Language in three phases.
 
 Phase A
 Write a Puma to C/C++ translator that calls the clang compiler to finished building the application. This translator does not have to be fast building the app but the executable should be approximately as fast as C/C++.

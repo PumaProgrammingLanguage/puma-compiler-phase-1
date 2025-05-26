@@ -5,17 +5,17 @@ The goal of this project is to write an LLVM compiler front-end for the Puma Pro
 Goals
 The current goal of this project is to write a compiler front-end for the Puma Programming Language in three phases.
 
-Phase A
-Write a Puma to C/C++ translator that calls the clang compiler to finished building the application. This translator does not have to be fast building the app but the executable should be approximately as fast as C/C++.
+Phase A:
+Write a Puma to C/C++ translator that calls the clang compiler to finished building the application. This translator does not have to be fast at building the app but the executable should be approximately as fast as C/C++.
 
-Phase B
-Refactor the Phase A compiler by replacing the current language that the compiler is written in the Puma Programming Language itself.  At the end of this phase, the Puma compiler shall be able to build itself.  This compiler should be faster at building Puma apps as the Phase A compiler and the executables should be as fast.
+Phase B:
+Refactor the Phase A compiler by replacing the current language that the compiler is written in to the Puma Programming Language itself.  At the end of this phase, the Puma compiler shall be able to build itself.  This compiler should be faster at building Puma apps than the Phase A compiler and the executables shall be as fast.
 
-Phase C
-Refactor the Phase A compiler to translate to the LLVM Intermediate language instead of C/C++.  The LLVM backend will finish the build.  This compiler should be faster at building Puma apps compared to Phase B but the executable may be slower due to the fact that it may not be as optimized as the clang compiler. Future version of this compiler should generate an executable that approach the speed of the Phase B compiler.
+Phase C:
+Refactor the Phase A compiler to translate to the LLVM Intermediate language instead of C/C++.  The LLVM backend will finish the build.  This compiler should be faster at building Puma apps compared to Phase B.  The clang compiler will be used to learn how to write efficient Intermedeate language code.  
 
 Standard Library
-Write a standard library that is convenient to use.  Advance features may be added but defaults must keep the components of the library convenient.
+Write a standard library that is convenient and easy to use.  Advance features may be added but defaults must keep the components of the library convenient and easy to use.
 
 Documents
 The specification and code of conduct documents are found in the doc folder.  
